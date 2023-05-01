@@ -119,15 +119,39 @@ namespace Essentials
 			int8_t SetDTR();
 			int8_t SetBinary();
 
-			// GETTERS
+			/// <summary>Get the current port in string format</summary>
+			/// <returns>The set port</returns>
 			std::string GetPort();
+
+			/// <summary>Get the current BaudRate set for the port</summary>
+			/// <returns>The current baud rate</returns>
 			BaudRate GetBaudrate();
+
+			/// <summary>Get the current Parity set for the port</summary>
+			/// <returns>The current parity</returns>
 			Parity GetParity();
+
+			/// <summary>Get the current ByteSize set for the port</summary>
+			/// <returns>The current byte size</returns>
 			ByteSize GetByteSize();
+
+			/// <summary>Get the current timeout set for the port</summary>
+			/// <returns>The current timeout, -1 = not set</returns>
 			int16_t GetTimeout();
+
+			/// <summary>Get the current StopBits set for the port</summary>
+			/// <returns>The current StopBits</returns>
 			StopBits GetStopBits();
+
+			/// <summary>Get the current Flow Controller set for the port</summary>
+			/// <returns>The current Flow Control setting</returns>
 			FlowControl GetFlowControl();
+
+			/// <summary>Get the current delimiter set for the port</summary>
+			/// <returns>The current delimiter, 0x00 = not set</returns>
 			uint8_t GetDelimiter();
+
+
 			int8_t GetCTS();
 			int8_t GetDSR();
 			int8_t GetRI();
@@ -135,24 +159,26 @@ namespace Essentials
 			bool GetBinary();
 			int8_t GetInQueueLength();
 
+			/// <summary>Get the last error in string format</summary>
+			/// <returns>The last error in a formatted string</returns>
 			std::string GetLastError();
 
 		protected:
 		private:
-			std::string		mPort;
-			BaudRate		mBaudRate;
-			Parity			mParity;
-			ByteSize		mByteSize;
-			int16_t			mTimeout;
-			StopBits		mStopBits;
-			FlowControl		mFlowControl;
-			SerialError		mLastError;
-			uint8_t			mDelimiter;
+			std::string		mPort;			// Port for the serial connection
+			BaudRate		mBaudRate;		// BaudRate for the serial connection
+			Parity			mParity;		// Parity for the serial connection
+			ByteSize		mByteSize;		// Byte Size for the serial connection
+			int16_t			mTimeout;		// Timeout for the serial connection
+			StopBits		mStopBits;		// Stop Bits for the serial connection
+			FlowControl		mFlowControl;	// Flow Control for the serial connection
+			SerialError		mLastError;		// Last error for this utility
+			uint8_t			mDelimiter;		// Delimiter for the serial stream
 
-			bool			mIsOpen;
-			bool			mBinary;
+			bool			mIsOpen;		// Flag if connection is established
+			bool			mBinary;		// Flag if in binary mode
 
-			int32_t			mFD;
+			int32_t			mFD;			// Handler
 
 		};
 	} // End Namespace Communications

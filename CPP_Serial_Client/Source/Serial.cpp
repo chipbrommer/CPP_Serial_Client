@@ -285,7 +285,7 @@ namespace Essentials
 
 		int16_t Serial::GetTimeout()
 		{
-			return mTimeout
+			return mTimeout;
 		}
 
 		StopBits Serial::GetStopBits()
