@@ -29,6 +29,8 @@ namespace Essentials
 			STOPBITS_SET_FAILURE,
 			FLOWCONTROL_SET_FAILURE,
 			DELIMITER_SET_FAILURE,
+			SERIAL_PORT_NOT_OPEN,
+			SERIAL_PORT_ALREADY_OPEN,
 		};
 
 		/// <summary>A Map to convert an error value to a readable string.</summary>
@@ -39,21 +41,21 @@ namespace Essentials
 
 		enum class BaudRate : uint8_t
 		{
-			BAUD_110,
-			BAUD_300,
-			BAUD_600,
-			BAUD_1200,
-			BAUD_2400,
-			BAUD_4800,
-			BAUD_9600,
-			BAUD_14400,
-			BAUD_19200,
-			BAUD_38400,
-			BAUD_57600,
-			BAUD_115200,
-			BAUD_128000,
-			BAUD_256000,
-			BAUD_INVALID,
+			BAUDRATE_110,
+			BAUDRATE_300,
+			BAUDRATE_600,
+			BAUDRATE_1200,
+			BAUDRATE_2400,
+			BAUDRATE_4800,
+			BAUDRATE_9600,
+			BAUDRATE_14400,
+			BAUDRATE_19200,
+			BAUDRATE_38400,
+			BAUDRATE_57600,
+			BAUDRATE_115200,
+			BAUDRATE_128000,
+			BAUDRATE_256000,
+			BAUDRATE_INVALID,
 		};
 
 		enum class ByteSize : uint8_t

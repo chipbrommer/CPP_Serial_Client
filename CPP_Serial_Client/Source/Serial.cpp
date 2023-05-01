@@ -26,7 +26,7 @@ namespace Essentials
 		Serial::Serial()
 		{
 			mPort = "";
-			mBaudRate = BaudRate::BAUD_INVALID;
+			mBaudRate = BaudRate::BAUDRATE_INVALID;
 			mByteSize = ByteSize::INVALID;
 			mTimeout = -1;
 			mParity = Parity::INVALID;
@@ -36,7 +36,11 @@ namespace Essentials
 			mDelimiter = 0x00;
 			mIsOpen = false;
 			mBinary = false;
+#ifdef WIN32
+			mFD = INVALID_HANDLE_VALUE;
+#elif defined LINUX
 			mFD = -1;
+#endif
 		}
 
 		Serial::Serial(const std::string port, const BaudRate baud, const ByteSize bytes, const Parity parity)
@@ -53,7 +57,11 @@ namespace Essentials
 			mDelimiter = 0x00;
 			mIsOpen = false;
 			mBinary = false;
+#ifdef WIN32
+			mFD = INVALID_HANDLE_VALUE;
+#elif defined LINUX
 			mFD = -1;
+#endif
 		}
 
 		Serial::~Serial()
@@ -91,6 +99,7 @@ namespace Essentials
 
 		int8_t Serial::Open()
 		{
+
 			return -1;
 		}
 
@@ -114,14 +123,61 @@ namespace Essentials
 			return -1;
 		}
 
+		int8_t Serial::Flush()
+		{
+			if (!mIsOpen)
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+#ifdef WIN32
+			FlushFileBuffers(mFD);
+#elif defined LINUX
+			if (mFD >= 0)
+			{
+				tcFlush(mFD, TCIFLUSH);
+			}
+#endif
+			return 0;
+		}
+
 		int8_t Serial::FlushInput()
 		{
-			return -1;
+			if (!mIsOpen)
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+#ifdef WIN32
+			PurgeComm(mFD, PURGE_RXCLEAR);
+#elif defined LINUX
+			if (mFD >= 0)
+			{
+				tcFlush(mFD, TCIFLUSH);
+			}
+#endif
+			return 0;
 		}
 
 		int8_t Serial::FlushOutput()
 		{
-			return -1;
+			if (!mIsOpen)
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+#ifdef WIN32
+			PurgeComm(mFD, PURGE_TXCLEAR);
+#elif defined LINUX
+			if (mFD >= 0)
+			{
+				tcFlush(mFD, TCIFLUSH);
+			}
+#endif
+			return 0;
 		}
 
 		int8_t Serial::Write()

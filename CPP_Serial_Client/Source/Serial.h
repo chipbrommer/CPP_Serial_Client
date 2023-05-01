@@ -17,8 +17,11 @@
 //          --------------------        ---------------------------------------
 #ifdef WIN32
 #include <stdint.h>						// Standard integer types
-#else
-
+#include <windows.h>
+#elif defined LINUX
+#include <termios.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
 #endif
 #include <string>						// Strings
 #include "Serial_Info.h"
@@ -72,6 +75,7 @@ namespace Essentials
 			int8_t WaitReadable();
 			int8_t Read();
 			int8_t ReadLine();
+			int8_t Flush();
 			int8_t FlushInput();
 			int8_t FlushOutput();
 			int8_t Write();
@@ -177,9 +181,11 @@ namespace Essentials
 
 			bool			mIsOpen;		// Flag if connection is established
 			bool			mBinary;		// Flag if in binary mode
-
-			int32_t			mFD;			// Handler
-
+#ifdef WIN32
+			HANDLE			mFD;			// Windows Handler
+#elif defined LINUX
+			int32_t			mFD;			// Linux Handler
+#endif
 		};
 	} // End Namespace Communications
 } // End Namespace Essentials
