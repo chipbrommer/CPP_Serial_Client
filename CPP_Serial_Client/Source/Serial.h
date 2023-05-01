@@ -101,7 +101,7 @@ namespace Essentials
 			/// <summary>Sets the timeout for the serial port</summary>
 			/// <param name="timeoutMS"> -[in]- Timeout for the serial port in MSecs</param>
 			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
-			int8_t SetTimeout(const uint16_t timeoutMS);
+			int8_t SetTimeout(const int16_t timeoutMS);
 
 			/// <summary>Sets the stopbits for the serial port</summary>
 			/// <param name="bits"> -[in]- StopBits for the port.</param>
@@ -113,26 +113,26 @@ namespace Essentials
 			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
 			int8_t SetFlowControl(const FlowControl flow);
 
-			int8_t SetDelimiter();
+			int8_t SetDelimiter(const uint8_t delimiter);
 			int8_t SetBreak();
 			int8_t SetRTS();
 			int8_t SetDTR();
 			int8_t SetBinary();
 
 			// GETTERS
-			int8_t GetPort();
-			int8_t GetBaudrate();
-			int8_t GetParity();
-			int8_t GetByteSize();
-			int8_t GetTimeout();
-			int8_t GetStopBits();
-			int8_t GetFlowControl();
-			int8_t GetDelimiter();
+			std::string GetPort();
+			BaudRate GetBaudrate();
+			Parity GetParity();
+			ByteSize GetByteSize();
+			int16_t GetTimeout();
+			StopBits GetStopBits();
+			FlowControl GetFlowControl();
+			uint8_t GetDelimiter();
 			int8_t GetCTS();
 			int8_t GetDSR();
 			int8_t GetRI();
 			int8_t GetCD();
-			int8_t GetBinary();
+			bool GetBinary();
 			int8_t GetInQueueLength();
 
 			std::string GetLastError();
@@ -143,10 +143,11 @@ namespace Essentials
 			BaudRate		mBaudRate;
 			Parity			mParity;
 			ByteSize		mByteSize;
-			uint16_t		mTimeout;
+			int16_t			mTimeout;
 			StopBits		mStopBits;
 			FlowControl		mFlowControl;
 			SerialError		mLastError;
+			uint8_t			mDelimiter;
 
 			bool			mIsOpen;
 			bool			mBinary;

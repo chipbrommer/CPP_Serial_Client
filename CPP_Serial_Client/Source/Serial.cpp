@@ -28,10 +28,12 @@ namespace Essentials
 			mPort = "";
 			mBaudRate = BaudRate::BAUD_INVALID;
 			mByteSize = ByteSize::INVALID;
+			mTimeout = -1;
 			mParity = Parity::INVALID;
 			mStopBits = StopBits::INVALID;
 			mFlowControl = FlowControl::HARDWARE;
 			mLastError = SerialError::NONE;
+			mDelimiter = 0x00;
 			mIsOpen = false;
 			mBinary = false;
 			mFD = -1;
@@ -44,9 +46,11 @@ namespace Essentials
 			mByteSize = bytes;
 			mParity = parity;
 
+			mTimeout = -1;
 			mStopBits = StopBits::ONE;
 			mFlowControl = FlowControl::HARDWARE;
 			mLastError = SerialError::NONE;
+			mDelimiter = 0x00;
 			mIsOpen = false;
 			mBinary = false;
 			mFD = -1;
@@ -187,7 +191,7 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::SetTimeout(const uint16_t timeoutMS)
+		int8_t Serial::SetTimeout(const int16_t timeoutMS)
 		{
 			mTimeout = timeoutMS;
 
@@ -226,8 +230,16 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::SetDelimiter()
+		int8_t Serial::SetDelimiter(const uint8_t delimiter)
 		{
+			mDelimiter = delimiter;
+
+			if (mDelimiter == delimiter)
+			{
+				return 0;
+			}
+
+			mLastError = SerialError::DELIMITER_SET_FAILURE;
 			return -1;
 		}
 
@@ -251,44 +263,44 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::GetPort()
+		std::string Serial::GetPort()
 		{
-			return -1;
+			return mPort;
 		}
 
-		int8_t Serial::GetBaudrate()
+		BaudRate Serial::GetBaudrate()
 		{
-			return -1;
+			return mBaudRate;
 		}
 
-		int8_t Serial::GetParity()
+		Parity Serial::GetParity()
 		{
-			return -1;
+			return mParity;
 		}
 
-		int8_t Serial::GetByteSize()
+		ByteSize Serial::GetByteSize()
 		{
-			return -1;
+			return mByteSize;
 		}
 
-		int8_t Serial::GetTimeout()
+		int16_t Serial::GetTimeout()
 		{
-			return -1;
+			return mTimeout
 		}
 
-		int8_t Serial::GetStopBits()
+		StopBits Serial::GetStopBits()
 		{
-			return -1;
+			return mStopBits;
 		}
 
-		int8_t Serial::GetFlowControl()
+		FlowControl Serial::GetFlowControl()
 		{
-			return -1;
+			return mFlowControl;
 		}
 
-		int8_t Serial::GetDelimiter()
+		uint8_t Serial::GetDelimiter()
 		{
-			return -1;
+			return mDelimiter;
 		}
 
 		int8_t Serial::GetCTS()
@@ -311,9 +323,9 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::GetBinary()
+		bool Serial::GetBinary()
 		{
-			return -1;
+			return mBinary;
 		}
 
 		int8_t Serial::GetInQueueLength()
