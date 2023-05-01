@@ -30,7 +30,7 @@ namespace Essentials
 			mByteSize = ByteSize::INVALID;
 			mTimeout = -1;
 			mParity = Parity::INVALID;
-			mStopBits = StopBits::INVALID;
+			mStopBits = StopBits::ONE;
 			mFlowControl = FlowControl::HARDWARE;
 			mLastError = SerialError::NONE;
 			mDelimiter = 0x00;
@@ -99,7 +99,58 @@ namespace Essentials
 
 		int8_t Serial::Open()
 		{
+			// Run through a series of checks to verify everything is ready.
+			if(mIsOpen)
+			{
+				mLastError = SerialError::SERIAL_PORT_ALREADY_OPEN;
+				return -1;
+			}
 
+			if (mPort == "")
+			{
+				mLastError = SerialError::PORT_NOT_SET;
+				return -1;
+			}
+
+			if (mBaudRate == BaudRate::BAUDRATE_INVALID)
+			{
+				mLastError = SerialError::BAUDRATE_NOT_SET;
+				return -1;
+			}
+
+			if (mByteSize == ByteSize::INVALID)
+			{
+				mLastError = SerialError::BYTESIZE_NOT_SET;
+				return -1;
+			}
+
+			if (mParity == Parity::INVALID)
+			{
+				mLastError = SerialError::PARITY_NOT_SET;
+				return -1;
+			}
+
+			if (mStopBits == StopBits::INVALID)
+			{
+				mLastError = SerialError::STOPBITS_NOT_SET;
+				return -1;
+			}
+
+#ifdef WIN32
+			if (mBlocking)
+			{
+
+			}
+			else
+			{
+
+			}
+#elif defined LINUX
+			if (mBlocking)
+			{
+
+			}
+#endif
 			return -1;
 		}
 
@@ -131,15 +182,32 @@ namespace Essentials
 				return -1;
 			}
 
+			int rtn = 0;
+
 #ifdef WIN32
-			FlushFileBuffers(mFD);
+			if (mFD != INVALID_HANDLE_VALUE)
+			{
+				rtn = FlushFileBuffers(mFD);
+			}
+
+			// FlushFileBuffers returns 0 on fail, adjust to -1;
+			if (rtn == 0)
+			{
+				rtn = -1;
+			}
+
 #elif defined LINUX
 			if (mFD >= 0)
 			{
-				tcFlush(mFD, TCIFLUSH);
+				rtn = tcFlush(mFD, TCIFLUSH);
 			}
 #endif
-			return 0;
+			if (rtn == -1)
+			{
+				mLastError = SerialError::FLUSH_ERROR;
+			}
+
+			return rtn;
 		}
 
 		int8_t Serial::FlushInput()
@@ -192,7 +260,24 @@ namespace Essentials
 
 		int8_t Serial::Close()
 		{
-			return -1;
+			// Holds value returned from closing
+			int result;
+
+#ifdef WIN32
+			result = CloseHandle(mFD);
+#elif defined LINUX
+			result = close(m_status);
+#endif
+
+			// Check if error in closing
+			if (result < 0)
+			{
+				mLastError = SerialError::CLOSE_FAILURE;
+				return -1;
+			}
+
+			// return success
+			return 0;
 		}
 
 		int8_t Serial::SetSerialPort(const std::string port)

@@ -26,11 +26,14 @@ namespace Essentials
 			BYTESIZE_NOT_SET,
 			BYTESIZE_SET_FAILURE,
 			TIMEOUT_SET_FAILURE,
+			STOPBITS_NOT_SET,
 			STOPBITS_SET_FAILURE,
 			FLOWCONTROL_SET_FAILURE,
 			DELIMITER_SET_FAILURE,
 			SERIAL_PORT_NOT_OPEN,
 			SERIAL_PORT_ALREADY_OPEN,
+			CLOSE_FAILURE,
+			FLUSH_ERROR,
 		};
 
 		/// <summary>A Map to convert an error value to a readable string.</summary>

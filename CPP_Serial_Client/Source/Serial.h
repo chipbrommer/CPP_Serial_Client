@@ -80,6 +80,9 @@ namespace Essentials
 			int8_t FlushOutput();
 			int8_t Write();
 			int8_t WriteBreak();
+
+			/// <summary>Closes a serial connection</summary>
+			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
 			int8_t Close();
 
 			/// <summary>Sets the port to connect on</summary>
@@ -181,6 +184,7 @@ namespace Essentials
 
 			bool			mIsOpen;		// Flag if connection is established
 			bool			mBinary;		// Flag if in binary mode
+			bool			mBlocking;		// Flag if a blocking setup
 #ifdef WIN32
 			HANDLE			mFD;			// Windows Handler
 #elif defined LINUX
