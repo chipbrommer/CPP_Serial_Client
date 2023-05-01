@@ -27,9 +27,9 @@ namespace Essentials
 		{
 			mPort = "";
 			mBaudRate = BaudRate::BAUD_INVALID;
-			mByteSize = ByteSize::EIGHT;
-			mParity = Parity::NONE;
-			mStopBits = StopBits::ONE;
+			mByteSize = ByteSize::INVALID;
+			mParity = Parity::INVALID;
+			mStopBits = StopBits::INVALID;
 			mFlowControl = FlowControl::HARDWARE;
 			mLastError = SerialError::NONE;
 			mIsOpen = false;
@@ -54,12 +54,35 @@ namespace Essentials
 
 		Serial::~Serial()
 		{
-
+			if (mIsOpen)
+			{
+				Close();
+			}
 		}
 
-		int8_t Serial::Configure(std::string port, BaudRate baud, Parity parity)
+		int8_t Serial::Configure(const std::string port, const BaudRate baud, const ByteSize bytes, const Parity parity)
 		{
-			return -1;
+			if(SetPort(port) < 0)
+			{
+				return -1;
+			}
+
+			if (SetBaudrate(baud) < 0)
+			{
+				return -1;
+			}
+
+			if (SetByteSize(bytes) < 0)
+			{
+				return -1;
+			}
+
+			if (SetParity(parity) < 0)
+			{
+				return -1;
+			}
+
+			return 0;
 		}
 
 		int8_t Serial::Open()
@@ -112,38 +135,94 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::SetPort(std::string port)
+		int8_t Serial::SetPort(const std::string port)
 		{
+			mPort = port;
+
+			if (mPort == port)
+			{
+				return 0;
+			}
+
+			mLastError = SerialError::PORT_SET_FAILURE;
 			return -1;
 		}
 
-		int8_t Serial::SetBaudrate(BaudRate baud)
+		int8_t Serial::SetBaudrate(const BaudRate baud)
 		{
+			mBaudRate = baud;
+
+			if (mBaudRate == baud)
+			{
+				return 0;
+			}
+
+			mLastError = SerialError::BAUDRATE_SET_FAILURE;
 			return -1;
 		}
 
-		int8_t Serial::SetParity(Parity patiry)
+		int8_t Serial::SetParity(const Parity parity)
 		{
+			mParity = parity;
+
+			if (mParity == parity)
+			{
+				return 0;
+			}
+
+			mLastError = SerialError::PARITY_SET_FAILURE;
 			return -1;
 		}
 
-		int8_t Serial::SetByteSize(ByteSize size)
+		int8_t Serial::SetByteSize(const ByteSize size)
 		{
+			mByteSize = size;
+
+			if (mByteSize == size)
+			{
+				return 0;
+			}
+
+			mLastError = SerialError::BYTESIZE_SET_FAILURE;
 			return -1;
 		}
 
-		int8_t Serial::SetTimeout()
+		int8_t Serial::SetTimeout(const uint16_t timeoutMS)
 		{
+			mTimeout = timeoutMS;
+
+			if (mTimeout == timeoutMS)
+			{
+				return 0;
+			}
+
+			mLastError = SerialError::TIMEOUT_SET_FAILURE;
 			return -1;
 		}
 
-		int8_t Serial::SetStopBits(StopBits bits)
+		int8_t Serial::SetStopBits(const StopBits bits)
 		{
+			mStopBits = bits;
+
+			if (mStopBits == bits)
+			{
+				return 0;
+			}
+
+			mLastError = SerialError::STOPBITS_SET_FAILURE;
 			return -1;
 		}
 
-		int8_t Serial::SetFlowControl(FlowControl flow)
+		int8_t Serial::SetFlowControl(const FlowControl flow)
 		{
+			mFlowControl = flow;
+
+			if (mFlowControl == flow)
+			{
+				return 0;
+			}
+
+			mLastError = SerialError::FLOWCONTROL_SET_FAILURE;
 			return -1;
 		}
 

@@ -42,21 +42,22 @@ namespace Essentials
 			Serial();
 
 			/// <summary>Constructor that accepts some default parameters.</summary>
-			/// <param name="port">Port to connect on.</param>
-			/// <param name="baud">Baudrate for the port.</param>
-			/// <param name="bytes">BytesSize for the port.</param>
-			/// <param name="parity">Parity for the port.</param>
+			/// <param name="port"> -[in]- Port to connect on.</param>
+			/// <param name="baud"> -[in]- Baudrate for the port.</param>
+			/// <param name="bytes"> -[in]- BytesSize for the port.</param>
+			/// <param name="parity"> -[in]- Parity for the port.</param>
 			Serial(const std::string port, const BaudRate baud, const ByteSize bytes, const Parity parity);
 
 			/// <summary>Default Deconstructor</summary>
 			~Serial();
 
 			/// <summary>Initializer that accepts some default parameters if the default constructor is used.</summary>
-			/// <param name="port">Port to connect on.</param>
-			/// <param name="baud">Baudrate for the port.</param>
-			/// <param name="parity">Parity for the port.</param>
+			/// <param name="port"> -[in]- Port to connect on.</param>
+			/// <param name="baud"> -[in]- Baudrate for the port.</param>
+			/// <param name="bytes"> -[in]- BytesSize for the port.</param>
+			/// <param name="parity"> -[in]- Parity for the port.</param>
 			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
-			int8_t Configure(std::string port, BaudRate baud, Parity parity);
+			int8_t Configure(const std::string port, const BaudRate baud, const ByteSize bytes, const Parity parity);
 
 			/// <summary>Opens a serial connection.</summary>
 			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
@@ -77,14 +78,41 @@ namespace Essentials
 			int8_t WriteBreak();
 			int8_t Close();
 
-			// SETTERS
-			int8_t SetPort(std::string port);
-			int8_t SetBaudrate(BaudRate baud);
-			int8_t SetParity(Parity patiry);
-			int8_t SetByteSize(ByteSize size);
-			int8_t SetTimeout();
-			int8_t SetStopBits(StopBits bits);
-			int8_t SetFlowControl(FlowControl flow);
+			/// <summary>Sets the port to connect on</summary>
+			/// <param name="port"> -[in]- Port to connect on.</param>
+			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
+			int8_t SetPort(const std::string port);
+
+			/// <summary>Sets the baudrate for the serial port</summary>
+			/// <param name="baud"> -[in]- Baudrate for the port.</param>
+			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
+			int8_t SetBaudrate(const BaudRate baud);
+
+			/// <summary>Sets the parity for the serial port</summary>
+			/// <param name="parity"> -[in]- Parity for the port.</param>
+			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
+			int8_t SetParity(const Parity parity);
+
+			/// <summary>Sets the bytesize for the serial port</summary>
+			/// <param name="size"> -[in]- BytesSize for the port.</param>
+			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
+			int8_t SetByteSize(const ByteSize size);
+
+			/// <summary>Sets the timeout for the serial port</summary>
+			/// <param name="timeoutMS"> -[in]- Timeout for the serial port in MSecs</param>
+			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
+			int8_t SetTimeout(const uint16_t timeoutMS);
+
+			/// <summary>Sets the stopbits for the serial port</summary>
+			/// <param name="bits"> -[in]- StopBits for the port.</param>
+			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
+			int8_t SetStopBits(const StopBits bits);
+
+			/// <summary>Sets the flow controller for the serial port</summary>
+			/// <param name="flow"> -[in]- Desired flow control designation for the port.</param>
+			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
+			int8_t SetFlowControl(const FlowControl flow);
+
 			int8_t SetDelimiter();
 			int8_t SetBreak();
 			int8_t SetRTS();
@@ -113,11 +141,12 @@ namespace Essentials
 		private:
 			std::string		mPort;
 			BaudRate		mBaudRate;
-			ByteSize		mByteSize;
 			Parity			mParity;
+			ByteSize		mByteSize;
+			uint16_t		mTimeout;
 			StopBits		mStopBits;
 			FlowControl		mFlowControl;
-			SerialError			mLastError;
+			SerialError		mLastError;
 
 			bool			mIsOpen;
 			bool			mBinary;

@@ -17,6 +17,18 @@ namespace Essentials
 		enum class SerialError : uint8_t
 		{
 			NONE,
+			PORT_NOT_SET,
+			PORT_SET_FAILURE,
+			BAUDRATE_NOT_SET,
+			BAUDRATE_SET_FAILURE,
+			PARITY_NOT_SET,
+			PARITY_SET_FAILURE,
+			BYTESIZE_NOT_SET,
+			BYTESIZE_SET_FAILURE,
+			TIMEOUT_SET_FAILURE,
+			STOPBITS_SET_FAILURE,
+			FLOWCONTROL_SET_FAILURE,
+			DELIMITER_SET_FAILURE,
 		};
 
 		/// <summary>A Map to convert an error value to a readable string.</summary>
@@ -50,6 +62,7 @@ namespace Essentials
 			SIX = 6,
 			SEVEN = 7,
 			EIGHT = 8,
+			INVALID,
 		};
 
 		enum class Parity : uint8_t
@@ -59,6 +72,7 @@ namespace Essentials
 			EVEN,
 			MARK,
 			SPACE,
+			INVALID,
 		};
 
 		enum class StopBits : uint8_t
@@ -66,6 +80,7 @@ namespace Essentials
 			ONE,
 			TWO,
 			ONE_FIVE,
+			INVALID
 		};
 
 		enum class FlowControl : uint8_t
