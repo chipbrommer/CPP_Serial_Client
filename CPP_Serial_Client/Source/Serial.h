@@ -85,7 +85,7 @@ namespace Essentials
 			/// <summary>Sets the port to connect on</summary>
 			/// <param name="port"> -[in]- Port to connect on.</param>
 			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
-			int8_t SetPort(const std::string port);
+			int8_t SetSerialPort(const std::string port);
 
 			/// <summary>Sets the baudrate for the serial port</summary>
 			/// <param name="baud"> -[in]- Baudrate for the port.</param>

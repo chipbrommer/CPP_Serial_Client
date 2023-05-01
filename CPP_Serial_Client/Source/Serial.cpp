@@ -74,7 +74,7 @@ namespace Essentials
 
 		int8_t Serial::Configure(const std::string port, const BaudRate baud, const ByteSize bytes, const Parity parity)
 		{
-			if(SetPort(port) < 0)
+			if(SetSerialPort(port) < 0)
 			{
 				return -1;
 			}
@@ -195,7 +195,7 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::SetPort(const std::string port)
+		int8_t Serial::SetSerialPort(const std::string port)
 		{
 			mPort = port;
 
