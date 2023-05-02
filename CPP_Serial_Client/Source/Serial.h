@@ -22,6 +22,7 @@
 #include <termios.h>					
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <fcntl.h>
 #endif
 #include <string>						// Strings
 #include "Serial_Info.h"

@@ -156,9 +156,10 @@ namespace Essentials
 			serialSettings.DCBlength = sizeof(serialSettings);
 			GetCommState(mFD, &serialSettings);
 			serialSettings.BaudRate = (DWORD)mBaudRate;
-			serialSettings.ByteSize = 8;
+			serialSettings.ByteSize = mByteSize;
 			serialSettings.StopBits = ONESTOPBIT;
 			serialSettings.Parity = NOPARITY;
+
 			// Save settings, check for error
 			if (SetCommState(mFD, &serialSettings) == 0)
 			{
@@ -177,10 +178,98 @@ namespace Essentials
 				return -1;
 			}
 #elif defined __linux__
+			// Open connection to serial port
+			// Call open + send port name and Read Write access + Program doesnt control access + Send without restrictions
 			if (mBlocking)
 			{
-
+				mFD = open(mPort.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_APPEND);
 			}
+			else
+			{
+				mFD = open(mPort.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_APPEND | O_NONBLOCK);
+			}
+
+			// Handle check : -1 = open failed
+			if (mFD < 0)
+			{
+				mLastError = SerialError::SERIAL_LINUX_OPEN_FAILURE;
+				return -1;
+			}
+
+			// Get the current serial attriutes, if tcgetattr returns -1, print error and return
+			termios term;
+			if (tcgetattr(mFD, &term) < 0)
+			{
+				mLastError = SerialError::SERIAL_LINUX_GETATTRIBUTES_FAILURE;
+				return -1;
+			}
+			else 
+			{
+				// Setup settings for Serial Port communication
+				speed_t baud = 0;
+
+				switch (mBaudRate)
+				{
+				case BaudRate::BAUDRATE_50:		baud = B50;
+				case BaudRate::BAUDRATE_75:		baud = B75;
+				case BaudRate::BAUDRATE_110:	baud = B110;
+				case BaudRate::BAUDRATE_134:	baud = B134;
+				case BaudRate::BAUDRATE_150:	baud = B150;
+				case BaudRate::BAUDRATE_200:	baud = B200;
+				case BaudRate::BAUDRATE_300:	baud = B300;
+				case BaudRate::BAUDRATE_600:	baud = B600;
+				case BaudRate::BAUDRATE_1200:	baud = B1200;
+				case BaudRate::BAUDRATE_2400:	baud = B2400;
+				case BaudRate::BAUDRATE_4800:	baud = B4800;
+				case BaudRate::BAUDRATE_9600:	baud = B9600;
+				case BaudRate::BAUDRATE_19200:	baud = B19200;
+				case BaudRate::BAUDRATE_38400:	baud = B38400;
+				case BaudRate::BAUDRATE_57600:	baud = B57600;
+				case BaudRate::BAUDRATE_115200: baud = B115200;
+				case BaudRate::BAUDRATE_460800: baud = B460800;
+				case BaudRate::BAUDRATE_921600: baud = B921600;
+				default: baud = B9600;
+					// TODO - add custom bauds for windows only ones. 
+				}
+
+				cfsetospeed(&term, baud);		// set the baudrate from "mBaudRate" parameter
+				cfsetispeed(&term, baud);
+
+				switch (mByteSize)
+				{
+				case ByteSize::FIVE:	term.c_cflag |= CS5;
+				case ByteSize::SIX:		term.c_cflag |= CS6;
+				case ByteSize::SEVEN:	term.c_cflag |= CS7;
+				case ByteSize::EIGHT: // Intentional fall through
+				default:				term.c_cflag |= CS8;
+				}
+
+				// TODO - parity, stopbits, flow control.
+
+				term.c_cflag &= ~PARENB;				// Clear parity bit, disabling parity
+				term.c_cflag &= ~CSTOPB;				// Use one stop bit
+				term.c_cflag &= ~CRTSCTS;				// Disable RTS/CTS hardware flow control
+				term.c_cflag |= CREAD | CLOCAL;			// Turn on READ & ignore ctrl lines (CLOCAL = 1)
+				term.c_lflag &= ~ICANON;				// Disable canonical
+				term.c_lflag &= ~ECHO;					// Disable echo
+				term.c_lflag &= ~ECHOE;					// Disable erasure
+				term.c_lflag &= ~ECHONL;				// Disable new-line echo
+				term.c_lflag &= ~ISIG;					// Disable interpretation of INTR, QUIT and SUSP
+				term.c_iflag &= ~(IXON | IXOFF | IXANY); // Turn off s/w flow ctrl
+				term.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL); // Disable any special handling of received bytes
+				term.c_oflag &= ~OPOST;					// Prevent special interpretation of output bytes
+				term.c_oflag &= ~ONLCR;					// Prevent conversion of newline
+				term.c_cc[VTIME] = mBlocking ? 1 : 0;	// 0 = Return as soon as any data is received.
+				term.c_cc[VMIN] = mBlocking ? cc_t(1) : 0;
+
+				// Save settings, check for error
+				if (tcsetattr(mFD, TCSANOW, &term) < 0)
+				{
+					mLastError = SerialError::SERIAL_LINUX_SETATTRIBUTES_FAILURE;
+					return -1;
+				}
+			}
+
 #endif
 			return -1;
 		}
@@ -234,7 +323,7 @@ namespace Essentials
 #elif defined __linux__
 			if (mFD >= 0)
 			{
-				rtn = tcflush(mFD, TCIFLUSH);
+				rtn = tcflush(mFD, TCIOFLUSH);
 			}
 #endif
 			if (rtn == -1)
@@ -277,7 +366,7 @@ namespace Essentials
 #elif defined __linux__
 			if (mFD >= 0)
 			{
-				tcflush(mFD, TCIFLUSH);
+				tcflush(mFD, TCOFLUSH);
 			}
 #endif
 			return 0;

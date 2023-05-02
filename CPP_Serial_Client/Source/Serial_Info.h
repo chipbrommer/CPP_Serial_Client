@@ -1,4 +1,5 @@
 #include <map>
+#include <termios.h>
 //#include <format>
 
 namespace Essentials
@@ -38,6 +39,9 @@ namespace Essentials
 			SET_COMMSTATE_FAILURE,
 			SET_COMMTIMEOUT_FAILURE,
 			QUEUE_LENGTH_READ_FAILURE,
+			SERIAL_LINUX_OPEN_FAILURE,
+			SERIAL_LINUX_GETATTRIBUTES_FAILURE,
+			SERIAL_LINUX_SETATTRIBUTES_FAILURE,
 		};
 
 		/// <summary>A Map to convert an error value to a readable string.</summary>
@@ -48,29 +52,38 @@ namespace Essentials
 
 		enum class BaudRate : uint32_t
 		{
+			BAUDRATE_50,		// Posix only.
+			BAUDRATE_75,		// Posix only.
 			BAUDRATE_110,
+			BAUDRATE_134,		// Posix only.
+			BAUDRATE_150,		// Posix only.
+			BAUDRATE_200,		// Posix only.
 			BAUDRATE_300,
 			BAUDRATE_600,
 			BAUDRATE_1200,
+			BAUDRATE_1800,		// Posix only.
 			BAUDRATE_2400,
 			BAUDRATE_4800,
 			BAUDRATE_9600,
-			BAUDRATE_14400,
+			BAUDRATE_14400,		// Windows only. 
 			BAUDRATE_19200,
 			BAUDRATE_38400,
 			BAUDRATE_57600,
+			BAUDRATE_76800,		// Posix only.
 			BAUDRATE_115200,
-			BAUDRATE_128000,
-			BAUDRATE_256000,
+			BAUDRATE_128000,	// Windows only.
+			BAUDRATE_256000,	// Windows only.
+			BAUDRATE_460800,
+			BAUDRATE_921600,	
 			BAUDRATE_INVALID,
 		};
 
 		enum class ByteSize : uint8_t
 		{
-			FIVE = 5,
-			SIX = 6,
-			SEVEN = 7,
-			EIGHT = 8,
+			FIVE,
+			SIX,
+			SEVEN,
+			EIGHT,
 			INVALID,
 		};
 
