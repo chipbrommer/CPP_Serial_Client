@@ -108,7 +108,7 @@ namespace Essentials
 			/// <summary>Sets the timeout for the serial port</summary>
 			/// <param name="timeoutMS"> -[in]- Timeout for the serial port in MSecs</param>
 			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
-			int8_t SetTimeout(const int16_t timeoutMS);
+			int8_t SetTimeout(const uint32_t timeoutMS);
 
 			/// <summary>Sets the stopbits for the serial port</summary>
 			/// <param name="bits"> -[in]- StopBits for the port.</param>
@@ -143,8 +143,8 @@ namespace Essentials
 			ByteSize GetByteSize();
 
 			/// <summary>Get the current timeout set for the port</summary>
-			/// <returns>The current timeout, -1 = not set</returns>
-			int16_t GetTimeout();
+			/// <returns>The current timeout, 0 = not set</returns>
+			uint32_t GetTimeout();
 
 			/// <summary>Get the current StopBits set for the port</summary>
 			/// <returns>The current StopBits</returns>
@@ -176,7 +176,7 @@ namespace Essentials
 			BaudRate		mBaudRate;		// BaudRate for the serial connection
 			Parity			mParity;		// Parity for the serial connection
 			ByteSize		mByteSize;		// Byte Size for the serial connection
-			int16_t			mTimeout;		// Timeout for the serial connection
+			uint32_t		mTimeout;		// Timeout for the serial connection
 			StopBits		mStopBits;		// Stop Bits for the serial connection
 			FlowControl		mFlowControl;	// Flow Control for the serial connection
 			SerialError		mLastError;		// Last error for this utility

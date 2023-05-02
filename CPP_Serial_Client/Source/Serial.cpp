@@ -28,7 +28,7 @@ namespace Essentials
 			mPort = "";
 			mBaudRate = BaudRate::BAUDRATE_INVALID;
 			mByteSize = ByteSize::INVALID;
-			mTimeout = -1;
+			mTimeout = 0;
 			mParity = Parity::INVALID;
 			mStopBits = StopBits::ONE;
 			mFlowControl = FlowControl::HARDWARE;
@@ -50,7 +50,7 @@ namespace Essentials
 			mByteSize = bytes;
 			mParity = parity;
 
-			mTimeout = -1;
+			mTimeout = 0;
 			mStopBits = StopBits::ONE;
 			mFlowControl = FlowControl::HARDWARE;
 			mLastError = SerialError::NONE;
@@ -137,13 +137,46 @@ namespace Essentials
 			}
 
 #ifdef WIN32
-			if (mBlocking)
-			{
+			// open connection to serial port
+			mFD = CreateFileA(mPort.c_str(),			// Serial Port Name
+				GENERIC_READ | GENERIC_WRITE,			// Access general read/write 
+				0,										// Do not share access
+				NULL,									// No Security Attributes
+				OPEN_EXISTING,							// Open Existing File
+				FILE_ATTRIBUTE_NORMAL,					// Normal file attributes
+				NULL);									// Do not use template
 
+			// Connection check : throw error if invalid handle value
+			if (mFD == INVALID_HANDLE_VALUE)
+			{
+				mLastError = SerialError::HANDLE_SETUP_FAILURE;
+				return -1;
 			}
-			else
-			{
 
+			// Setup Settings for Serial Port
+			DCB serialSettings = { 0 };
+			serialSettings.DCBlength = sizeof(serialSettings);
+			GetCommState(mFD, &serialSettings);
+			serialSettings.BaudRate = (DWORD)mBaudRate;
+			serialSettings.ByteSize = 8;
+			serialSettings.StopBits = ONESTOPBIT;
+			serialSettings.Parity = NOPARITY;
+			// Save settings, check for error
+			if (SetCommState(mFD, &serialSettings) == 0)
+			{
+				mLastError = SerialError::SET_COMMSTATE_FAILURE;
+				return -1;
+			}
+
+			// Setup Timeouts for Serial Port
+			COMMTIMEOUTS serialTimeout = { 0 };
+			serialTimeout.ReadIntervalTimeout = mTimeout;
+
+			// Save timeouts, check for error
+			if (SetCommTimeouts(mFD, &serialTimeout) == 0)
+			{
+				mLastError = SerialError::SET_COMMTIMEOUT_FAILURE;
+				return -1;
 			}
 #elif defined LINUX
 			if (mBlocking)
@@ -265,6 +298,12 @@ namespace Essentials
 
 #ifdef WIN32
 			result = CloseHandle(mFD);
+
+			// Close Handle returns 0 for failure, adjust
+			if (result == 0)
+			{
+				result = -1;
+			}
 #elif defined LINUX
 			result = close(m_status);
 #endif
@@ -332,7 +371,7 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::SetTimeout(const int16_t timeoutMS)
+		int8_t Serial::SetTimeout(const uint32_t timeoutMS)
 		{
 			mTimeout = timeoutMS;
 
@@ -424,7 +463,7 @@ namespace Essentials
 			return mByteSize;
 		}
 
-		int16_t Serial::GetTimeout()
+		uint32_t Serial::GetTimeout()
 		{
 			return mTimeout;
 		}

@@ -34,6 +34,9 @@ namespace Essentials
 			SERIAL_PORT_ALREADY_OPEN,
 			CLOSE_FAILURE,
 			FLUSH_ERROR,
+			HANDLE_SETUP_FAILURE,
+			SET_COMMSTATE_FAILURE,
+			SET_COMMTIMEOUT_FAILURE,
 		};
 
 		/// <summary>A Map to convert an error value to a readable string.</summary>
@@ -42,7 +45,7 @@ namespace Essentials
 			{SerialError::NONE,	std::format("Error Code {} - No error.\n",(uint8_t)SerialError::NONE)},
 		};
 
-		enum class BaudRate : uint8_t
+		enum class BaudRate : uint32_t
 		{
 			BAUDRATE_110,
 			BAUDRATE_300,
