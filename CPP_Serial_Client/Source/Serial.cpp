@@ -25,6 +25,7 @@ namespace Essentials
 	{
 		Serial::Serial()
 		{
+			mTitle = "Serial";
 			mPort = "";
 			mBaudRate = BaudRate::BAUDRATE_INVALID;
 			mCustomBaudRate = -1;
@@ -50,6 +51,7 @@ namespace Essentials
 			mByteSize = bytes;
 			mParity = parity;
 
+			mTitle = "Serial_" + mPort;
 			mCustomBaudRate = -1;
 			mTimeout = 0;
 			mStopBits = StopBits::ONE;
@@ -457,6 +459,7 @@ namespace Essentials
 
 			if (mPort == port)
 			{
+				mTitle = "Serial_" + mPort;
 				return 0;
 			}
 

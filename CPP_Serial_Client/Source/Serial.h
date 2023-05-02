@@ -180,6 +180,7 @@ namespace Essentials
 
 			int8_t SetCustomBaudrate();
 
+			std::string		mTitle;				// Title for the class when using CPP_LOGGER
 			std::string		mPort;				// Port for the serial connection
 			BaudRate		mBaudRate;			// BaudRate for the serial connection
 			uint32_t		mCustomBaudRate;	// Custom BaudRate holder. 
