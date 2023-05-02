@@ -75,6 +75,7 @@ namespace Essentials
 			BAUDRATE_256000,	// Windows only.
 			BAUDRATE_460800,
 			BAUDRATE_921600,	
+			BAUDRATE_CUSTOM,
 			BAUDRATE_INVALID,
 		};
 

@@ -423,7 +423,7 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::SetBaudrate(const BaudRate baud)
+		int8_t Serial::SetBaudrate(const BaudRate baud, const uint32_t custom)
 		{
 			mBaudRate = baud;
 
@@ -627,6 +627,11 @@ namespace Essentials
 		std::string Serial::GetLastError()
 		{
 			return SerialErrorMap[mLastError];
+		}
+
+		int8_t SetCustomBaudrate()
+		{
+			return -1;
 		}
 
 	} // End Namespace Communications

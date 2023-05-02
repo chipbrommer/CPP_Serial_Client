@@ -93,8 +93,9 @@ namespace Essentials
 
 			/// <summary>Sets the baudrate for the serial port</summary>
 			/// <param name="baud"> -[in]- Baudrate for the port.</param>
+			/// <param name="custom"> -[opt/in]- Specified Baudrate when using BaudRate::BAUDRATE_CUSTOM</param>
 			/// <returns>0 if successful, -1 if fails. Call GetLastError to find out more.</returns>
-			int8_t SetBaudrate(const BaudRate baud);
+			int8_t SetBaudrate(const BaudRate baud, const uint32_t custom = 0);
 
 			/// <summary>Sets the parity for the serial port</summary>
 			/// <param name="parity"> -[in]- Parity for the port.</param>
@@ -176,6 +177,9 @@ namespace Essentials
 
 		protected:
 		private:
+
+			int8_t SetCustomBaudrate();
+
 			std::string		mPort;			// Port for the serial connection
 			BaudRate		mBaudRate;		// BaudRate for the serial connection
 			Parity			mParity;		// Parity for the serial connection
