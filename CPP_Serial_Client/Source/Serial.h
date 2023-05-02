@@ -180,22 +180,23 @@ namespace Essentials
 
 			int8_t SetCustomBaudrate();
 
-			std::string		mPort;			// Port for the serial connection
-			BaudRate		mBaudRate;		// BaudRate for the serial connection
-			Parity			mParity;		// Parity for the serial connection
-			ByteSize		mByteSize;		// Byte Size for the serial connection
-			uint32_t		mTimeout;		// Timeout for the serial connection
-			StopBits		mStopBits;		// Stop Bits for the serial connection
-			FlowControl		mFlowControl;	// Flow Control for the serial connection
-			SerialError		mLastError;		// Last error for this utility
-			uint8_t			mDelimiter;		// Delimiter for the serial stream
+			std::string		mPort;				// Port for the serial connection
+			BaudRate		mBaudRate;			// BaudRate for the serial connection
+			uint32_t		mCustomBaudRate;	// Custom BaudRate holder. 
+			Parity			mParity;			// Parity for the serial connection
+			ByteSize		mByteSize;			// Byte Size for the serial connection
+			uint32_t		mTimeout;			// Timeout for the serial connection
+			StopBits		mStopBits;			// Stop Bits for the serial connection
+			FlowControl		mFlowControl;		// Flow Control for the serial connection
+			SerialError		mLastError;			// Last error for this utility
+			uint8_t			mDelimiter;			// Delimiter for the serial stream
 
-			bool			mBinary;		// Flag if in binary mode
-			bool			mBlocking;		// Flag if a blocking setup
+			bool			mBinary;			// Flag if in binary mode
+			bool			mBlocking;			// Flag if a blocking setup
 #ifdef WIN32
-			HANDLE			mFD;			// Windows Handler
+			HANDLE			mFD;				// Windows Handler
 #elif defined __linux__
-			int32_t			mFD;			// Linux Handler
+			int32_t			mFD;				// Linux Handler
 #endif
 		};
 	} // End Namespace Communications

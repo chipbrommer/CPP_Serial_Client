@@ -27,6 +27,7 @@ namespace Essentials
 		{
 			mPort = "";
 			mBaudRate = BaudRate::BAUDRATE_INVALID;
+			mCustomBaudRate = -1;
 			mByteSize = ByteSize::INVALID;
 			mTimeout = 0;
 			mParity = Parity::INVALID;
@@ -49,6 +50,7 @@ namespace Essentials
 			mByteSize = bytes;
 			mParity = parity;
 
+			mCustomBaudRate = -1;
 			mTimeout = 0;
 			mStopBits = StopBits::ONE;
 			mFlowControl = FlowControl::HARDWARE;
@@ -155,8 +157,47 @@ namespace Essentials
 			DCB serialSettings = { 0 };
 			serialSettings.DCBlength = sizeof(serialSettings);
 			GetCommState(mFD, &serialSettings);
-			serialSettings.BaudRate = (DWORD)mBaudRate;
-			serialSettings.ByteSize = mByteSize;
+
+			DWORD baud = 0;
+
+			switch (mBaudRate)
+			{
+			case BaudRate::BAUDRATE_50:		serialSettings.BaudRate = 50;
+			case BaudRate::BAUDRATE_75:		serialSettings.BaudRate = 75;
+			case BaudRate::BAUDRATE_110:	serialSettings.BaudRate = CBR_110;
+			case BaudRate::BAUDRATE_134:	serialSettings.BaudRate = 134;
+			case BaudRate::BAUDRATE_150:	serialSettings.BaudRate = 150;
+			case BaudRate::BAUDRATE_200:	serialSettings.BaudRate = 200;
+			case BaudRate::BAUDRATE_300:	serialSettings.BaudRate = CBR_300;
+			case BaudRate::BAUDRATE_600:	serialSettings.BaudRate = CBR_600;
+			case BaudRate::BAUDRATE_1200:	serialSettings.BaudRate = CBR_1200;
+			case BaudRate::BAUDRATE_2400:	serialSettings.BaudRate = CBR_2400;
+			case BaudRate::BAUDRATE_4800:	serialSettings.BaudRate = CBR_4800;
+			case BaudRate::BAUDRATE_9600:	serialSettings.BaudRate = CBR_9600;
+			case BaudRate::BAUDRATE_14400:	serialSettings.BaudRate = CBR_14400;
+			case BaudRate::BAUDRATE_19200:	serialSettings.BaudRate = CBR_19200;
+			case BaudRate::BAUDRATE_38400:	serialSettings.BaudRate = CBR_38400;
+			case BaudRate::BAUDRATE_57600:	serialSettings.BaudRate = CBR_57600;
+			case BaudRate::BAUDRATE_115200: serialSettings.BaudRate = CBR_115200;
+			case BaudRate::BAUDRATE_128000: serialSettings.BaudRate = CBR_128000;
+			case BaudRate::BAUDRATE_256000: serialSettings.BaudRate = CBR_256000;
+			case BaudRate::BAUDRATE_460800: serialSettings.BaudRate = 460800;
+			case BaudRate::BAUDRATE_921600: serialSettings.BaudRate = 921600;
+			case BaudRate::BAUDRATE_CUSTOM: serialSettings.BaudRate = mCustomBaudRate;
+			default:						serialSettings.BaudRate = CBR_9600;
+			}
+
+			switch (mByteSize)
+			{
+			case ByteSize::FIVE:	serialSettings.ByteSize = 5;
+			case ByteSize::SIX:		serialSettings.ByteSize = 6;
+			case ByteSize::SEVEN:	serialSettings.ByteSize = 7;
+			case ByteSize::EIGHT: // Intentional fall throug
+			default:				serialSettings.ByteSize = 8;
+			}
+
+			// TODO - parity, stopbits, flow control.
+
 			serialSettings.StopBits = ONESTOPBIT;
 			serialSettings.Parity = NOPARITY;
 
@@ -423,8 +464,14 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::SetBaudrate(const BaudRate baud, const uint32_t custom)
+		int8_t Serial::SetBaudrate(const BaudRate baud, const uint32_t custom )
 		{
+			// Catch a custom baud rate.
+			if (baud == BaudRate::BAUDRATE_CUSTOM && custom != 0)
+			{
+				mCustomBaudRate = custom;
+			}
+
 			mBaudRate = baud;
 
 			if (mBaudRate == baud)
