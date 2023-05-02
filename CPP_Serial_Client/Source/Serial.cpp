@@ -34,11 +34,10 @@ namespace Essentials
 			mFlowControl = FlowControl::HARDWARE;
 			mLastError = SerialError::NONE;
 			mDelimiter = 0x00;
-			mIsOpen = false;
 			mBinary = false;
 #ifdef WIN32
 			mFD = INVALID_HANDLE_VALUE;
-#elif defined LINUX
+#elif defined __linux__
 			mFD = -1;
 #endif
 		}
@@ -55,18 +54,17 @@ namespace Essentials
 			mFlowControl = FlowControl::HARDWARE;
 			mLastError = SerialError::NONE;
 			mDelimiter = 0x00;
-			mIsOpen = false;
 			mBinary = false;
 #ifdef WIN32
 			mFD = INVALID_HANDLE_VALUE;
-#elif defined LINUX
+#elif defined __linux__
 			mFD = -1;
 #endif
 		}
 
 		Serial::~Serial()
 		{
-			if (mIsOpen)
+			if (IsOpen())
 			{
 				Close();
 			}
@@ -100,7 +98,7 @@ namespace Essentials
 		int8_t Serial::Open()
 		{
 			// Run through a series of checks to verify everything is ready.
-			if(mIsOpen)
+			if(IsOpen())
 			{
 				mLastError = SerialError::SERIAL_PORT_ALREADY_OPEN;
 				return -1;
@@ -178,7 +176,7 @@ namespace Essentials
 				mLastError = SerialError::SET_COMMTIMEOUT_FAILURE;
 				return -1;
 			}
-#elif defined LINUX
+#elif defined __linux__
 			if (mBlocking)
 			{
 
@@ -189,7 +187,11 @@ namespace Essentials
 
 		bool Serial::IsOpen()
 		{
-			return mIsOpen;
+#ifdef WIN32
+			return mFD != INVALID_HANDLE_VALUE;
+#elif defined __linux__
+			return mFD != -1;
+#endif
 		}
 
 		int8_t Serial::WaitReadable()
@@ -209,7 +211,7 @@ namespace Essentials
 
 		int8_t Serial::Flush()
 		{
-			if (!mIsOpen)
+			if (!IsOpen())
 			{
 				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
 				return -1;
@@ -229,10 +231,10 @@ namespace Essentials
 				rtn = -1;
 			}
 
-#elif defined LINUX
+#elif defined __linux__
 			if (mFD >= 0)
 			{
-				rtn = tcFlush(mFD, TCIFLUSH);
+				rtn = tcflush(mFD, TCIFLUSH);
 			}
 #endif
 			if (rtn == -1)
@@ -245,7 +247,7 @@ namespace Essentials
 
 		int8_t Serial::FlushInput()
 		{
-			if (!mIsOpen)
+			if (!IsOpen())
 			{
 				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
 				return -1;
@@ -253,10 +255,10 @@ namespace Essentials
 
 #ifdef WIN32
 			PurgeComm(mFD, PURGE_RXCLEAR);
-#elif defined LINUX
+#elif defined __linux__
 			if (mFD >= 0)
 			{
-				tcFlush(mFD, TCIFLUSH);
+				tcflush(mFD, TCIFLUSH);
 			}
 #endif
 			return 0;
@@ -264,7 +266,7 @@ namespace Essentials
 
 		int8_t Serial::FlushOutput()
 		{
-			if (!mIsOpen)
+			if (!IsOpen())
 			{
 				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
 				return -1;
@@ -272,10 +274,10 @@ namespace Essentials
 
 #ifdef WIN32
 			PurgeComm(mFD, PURGE_TXCLEAR);
-#elif defined LINUX
+#elif defined __linux__
 			if (mFD >= 0)
 			{
-				tcFlush(mFD, TCIFLUSH);
+				tcflush(mFD, TCIFLUSH);
 			}
 #endif
 			return 0;
@@ -304,8 +306,8 @@ namespace Essentials
 			{
 				result = -1;
 			}
-#elif defined LINUX
-			result = close(m_status);
+#elif defined __linux__
+			result = close(mFD);
 #endif
 
 			// Check if error in closing
@@ -508,8 +510,28 @@ namespace Essentials
 			return mBinary;
 		}
 
-		int8_t Serial::GetInQueueLength()
+		int32_t Serial::GetInQueueLength()
 		{
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+#ifdef WIN32
+			COMSTAT cs;
+			if (ClearCommError(mFD, NULL, &cs)) 
+			{
+				return cs.cbInQue;
+			}
+#elif defined __linux__
+			int32_t inQueue = -1;
+
+			if (ioctl(mFD, FIONREAD, &inQueue) >= 0)
+			{
+				return inQueue;
+			}
+#endif
+			mLastError = SerialError::QUEUE_LENGTH_READ_FAILURE;
 			return -1;
 		}
 

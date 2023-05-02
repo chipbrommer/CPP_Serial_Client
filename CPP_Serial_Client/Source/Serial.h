@@ -18,9 +18,9 @@
 #ifdef WIN32
 #include <stdint.h>						// Standard integer types
 #include <windows.h>
-#elif defined LINUX
-#include <termios.h>
-#include <fcntl.h>
+#elif defined __linux__
+#include <termios.h>					
+#include <unistd.h>
 #include <sys/ioctl.h>
 #endif
 #include <string>						// Strings
@@ -164,7 +164,10 @@ namespace Essentials
 			int8_t GetRI();
 			int8_t GetCD();
 			bool GetBinary();
-			int8_t GetInQueueLength();
+
+			/// <summary></summary>
+			/// <returns></returns>
+			int32_t GetInQueueLength();
 
 			/// <summary>Get the last error in string format</summary>
 			/// <returns>The last error in a formatted string</returns>
@@ -182,12 +185,11 @@ namespace Essentials
 			SerialError		mLastError;		// Last error for this utility
 			uint8_t			mDelimiter;		// Delimiter for the serial stream
 
-			bool			mIsOpen;		// Flag if connection is established
 			bool			mBinary;		// Flag if in binary mode
 			bool			mBlocking;		// Flag if a blocking setup
 #ifdef WIN32
 			HANDLE			mFD;			// Windows Handler
-#elif defined LINUX
+#elif defined __linux__
 			int32_t			mFD;			// Linux Handler
 #endif
 		};

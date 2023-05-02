@@ -11,7 +11,7 @@ add_executable (CPP_Serial_Client
 "Source/Serial_Info.h")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET CPP_Serial_Client PROPERTY CXX_STANDARD 20)
+  set_property(TARGET CPP_Serial_Client PROPERTY CXX_STANDARD_REQUIRED 20)
 endif()
 
 # TODO: Add tests and install targets if needed.

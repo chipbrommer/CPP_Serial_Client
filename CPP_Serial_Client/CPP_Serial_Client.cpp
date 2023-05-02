@@ -2,11 +2,14 @@
 //
 
 #include "CPP_Serial_Client.h"
+#include "Source/Serial.h"
 
 using namespace std;
 
 int main()
 {
 	cout << "Hello CMake." << endl;
+	//cout << Essentials::Communications::SerialVersion;
 	return 0;
+
 }
