@@ -1,5 +1,23 @@
-#include <map>
-//#include <format>
+///////////////////////////////////////////////////////////////////////////////
+//!
+//! @file		Serial_Info.cpp
+//! 
+//! @brief		Serial class information related enums and data. 
+//! 
+//! @author		Chip Brommer
+//! 
+//! @date		< 04 / 30 / 2023 > Initial Start Date
+//!
+/*****************************************************************************/
+#pragma once
+///////////////////////////////////////////////////////////////////////////////
+//
+//  Includes:
+//          name                        reason included
+//          --------------------        ---------------------------------------
+#include	<map>						// Map for error enum to string. 
+//
+///////////////////////////////////////////////////////////////////////////////
 
 namespace Essentials
 {

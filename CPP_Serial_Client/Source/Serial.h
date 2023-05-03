@@ -17,7 +17,7 @@
 //          --------------------        ---------------------------------------
 #ifdef WIN32
 #include <stdint.h>						// Standard integer types
-#include <windows.h>
+#include <windows.h>					// Windows basic include. File APIs
 #elif defined __linux__
 #include <termios.h>					
 #include <unistd.h>
@@ -26,8 +26,8 @@
 #include <sys/types.h>
 #endif
 #include <string>						// Strings
-#include "Serial_Info.h"
 #include <cstring>						// Memcpy
+#include "Serial_Info.h"				// This classes information file. 
 //
 //	Defines:
 //          name                        reason defined
