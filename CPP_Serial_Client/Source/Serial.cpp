@@ -35,7 +35,7 @@ namespace Essentials
 			mStopBits = StopBits::ONE;
 			mFlowControl = FlowControl::HARDWARE;
 			mLastError = SerialError::NONE;
-			mDelimiter = 0x00;
+			mDelimiter = "\n";
 			mBinary = false;
 #ifdef WIN32
 			mFD = INVALID_HANDLE_VALUE;
@@ -57,7 +57,7 @@ namespace Essentials
 			mStopBits = StopBits::ONE;
 			mFlowControl = FlowControl::HARDWARE;
 			mLastError = SerialError::NONE;
-			mDelimiter = 0x00;
+			mDelimiter = "\n";
 			mBinary = false;
 #ifdef WIN32
 			mFD = INVALID_HANDLE_VALUE;
@@ -328,17 +328,118 @@ namespace Essentials
 
 		int8_t Serial::WaitReadable()
 		{
+#ifdef WIN32
+			mLastError = SerialError::WIN32_WAIT_READBALE;
+			return -1;
+#elif defined __linux__
+			
+#endif
 			return -1;
 		}
 
-		int8_t Serial::Read()
+		int32_t Serial::Read(void* buffer, const uint32_t size)
 		{
-			return -1;
+			// Check m_status first
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+			// Holds value returned from reading
+			int32_t rtn = -1;
+
+			// Read data from the buffer 
+#ifdef WIN32
+			DWORD numRead = 0;
+			rtn = ReadFile(mFD, &buffer, size, &numRead, NULL);
+
+			// ReadFile returns 0 on fail, adjust to -1;
+			if (rtn == 0)
+			{
+				rtn = -1;
+			}
+			else
+			{
+				rtn = numRead;
+			}
+#elif defined __linux__
+			rtn = write(mFD, buffer, size);
+#endif
+
+			// Check if read was successful
+			if (rtn < 0)
+			{
+				mLastError = SerialError::READ_FAILURE;
+				return -1;
+			}
+
+			// Return result
+			return rtn;
 		}
 
-		int8_t Serial::ReadLine()
+		int32_t Serial::ReadLine(void* buffer, const uint32_t size, std::string delimiter)
 		{
-			return -1;
+			// If parameter isnt passed in and delimiter is set, use it instead
+			if (delimiter == "\n" && (mDelimiter != "\n" && !mDelimiter.empty()) )
+			{
+				delimiter = mDelimiter;
+			}
+			else if (delimiter.empty())
+			{
+				delimiter = "\n";
+			}
+
+			// Hold delimiter length.
+			uint8_t delimLength = delimiter.size();
+
+			uint8_t* inBuffer = static_cast<uint8_t*>(alloca(size * sizeof(uint8_t)));
+			uint32_t totalRead = 0;
+			int32_t numRead = -1;
+
+			// Read one byte at a time until delimiter is found or size cap is hit. 
+			for(;;)
+			{
+				numRead = Read(inBuffer + totalRead, 1);
+
+				if (numRead == -1)
+				{
+					break;
+				}
+
+				totalRead += numRead;
+
+				if (numRead == 0)
+				{
+					break; // Timeout occured on reading 1 byte
+				}
+
+				if (totalRead < delimLength)
+				{
+					continue;
+				}
+
+				if (std::string(reinterpret_cast<const char*>(inBuffer + totalRead - delimLength), delimLength) == delimiter) 
+				{
+					break; // EOL found
+				}
+
+				if (totalRead == size)
+				{
+					break; // Reached the maximum read length
+				}
+			}
+
+			// Check if read was successful
+			if (totalRead == 0 && numRead == -1)
+			{
+				mLastError = SerialError::READ_LINE_FAILURE;
+				return -1;
+			}
+
+			// Copy the buffer contents and return total read
+			memcpy(buffer, inBuffer, totalRead);
+			return totalRead;
 		}
 
 		int8_t Serial::Flush()
@@ -349,7 +450,7 @@ namespace Essentials
 				return -1;
 			}
 
-			int rtn = 0;
+			uint8_t rtn = 0;
 
 #ifdef WIN32
 			if (mFD != INVALID_HANDLE_VALUE)
@@ -362,7 +463,6 @@ namespace Essentials
 			{
 				rtn = -1;
 			}
-
 #elif defined __linux__
 			if (mFD >= 0)
 			{
@@ -371,10 +471,10 @@ namespace Essentials
 #endif
 			if (rtn == -1)
 			{
-				mLastError = SerialError::FLUSH_ERROR;
+				mLastError = SerialError::FLUSH_IO_ERROR;
 			}
 
-			return rtn;
+			return 0;
 		}
 
 		int8_t Serial::FlushInput()
@@ -385,14 +485,30 @@ namespace Essentials
 				return -1;
 			}
 
+			uint8_t rtn = 0;
+
 #ifdef WIN32
-			PurgeComm(mFD, PURGE_RXCLEAR);
+			if (mFD != INVALID_HANDLE_VALUE)
+			{
+				rtn = PurgeComm(mFD, PURGE_RXCLEAR);
+			}
+
+			// PurgeComm returns 0 on fail, adjust to -1;
+			if (rtn == 0)
+			{
+				rtn = -1;
+			}
 #elif defined __linux__
 			if (mFD >= 0)
 			{
-				tcflush(mFD, TCIFLUSH);
+				rtn = tcflush(mFD, TCIFLUSH);
 			}
 #endif
+			if (rtn == -1)
+			{
+				mLastError = SerialError::FLUSH_INPUT_ERROR;
+			}
+
 			return 0;
 		}
 
@@ -404,23 +520,75 @@ namespace Essentials
 				return -1;
 			}
 
+			uint8_t rtn = 0;
+
 #ifdef WIN32
-			PurgeComm(mFD, PURGE_TXCLEAR);
+			if (mFD != INVALID_HANDLE_VALUE)
+			{
+				rtn = PurgeComm(mFD, PURGE_TXCLEAR);
+			}
+
+			// PurgeComm returns 0 on fail, adjust to -1;
+			if (rtn == 0)
+			{
+				rtn = -1;
+			}
 #elif defined __linux__
 			if (mFD >= 0)
 			{
-				tcflush(mFD, TCOFLUSH);
+				rtn = tcflush(mFD, TCOFLUSH);
 			}
 #endif
+			if (rtn == -1)
+			{
+				mLastError = SerialError::FLUSH_OUTPUT_ERROR;
+			}
+
 			return 0;
 		}
 
-		int8_t Serial::Write()
+		int32_t Serial::Write(const void* buffer, const uint32_t size)
 		{
-			return -1;
+			// Check m_status first
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+			// Holds value returned from writing
+			int32_t rtn = -1;
+
+			// Write the msg over serial port that is open. 
+#ifdef WIN32
+			DWORD numOut = 0;
+			rtn = WriteFile(mFD, buffer, size, &numOut, NULL);
+
+			// WriteFile returns 0 on fail, adjust to -1;
+			if (rtn == 0)
+			{
+				rtn = -1;
+			}
+			else
+			{
+				rtn = numOut;
+			}
+#elif defined __linux__
+			rtn = write(mFD, buffer, size);
+#endif
+
+			// Check if send was successful
+			if (rtn < 0)
+			{
+				mLastError = SerialError::WRITE_FAILURE;
+				return -1;
+			}
+
+			// Return result
+			return rtn;
 		}
 
-		int8_t Serial::WriteBreak()
+		int32_t Serial::WriteBreak(const void* buffer, const uint32_t size)
 		{
 			return -1;
 		}
@@ -551,7 +719,7 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::SetDelimiter(const uint8_t delimiter)
+		int8_t Serial::SetDelimiter(const std::string delimiter)
 		{
 			mDelimiter = delimiter;
 
@@ -619,7 +787,7 @@ namespace Essentials
 			return mFlowControl;
 		}
 
-		uint8_t Serial::GetDelimiter()
+		std::string Serial::GetDelimiter()
 		{
 			return mDelimiter;
 		}
@@ -679,7 +847,7 @@ namespace Essentials
 			return SerialErrorMap[mLastError];
 		}
 
-		int8_t SetCustomBaudrate()
+		int8_t Serial::SetCustomBaudrate()
 		{
 			return -1;
 		}
