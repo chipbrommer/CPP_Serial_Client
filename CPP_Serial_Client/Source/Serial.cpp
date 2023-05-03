@@ -393,9 +393,9 @@ namespace Essentials
 			}
 
 			// Hold delimiter length.
-			uint8_t delimLength = delimiter.size();
+			uint32_t delimLength = static_cast<uint32_t>(delimiter.size());
 
-			uint8_t* inBuffer = static_cast<uint8_t*>(alloca(size * sizeof(uint8_t)));
+			uint8_t* inBuffer = static_cast<uint8_t*>(_malloca(size * sizeof(uint8_t)));
 			uint32_t totalRead = 0;
 			int32_t numRead = -1;
 
