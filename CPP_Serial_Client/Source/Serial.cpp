@@ -339,6 +339,8 @@ namespace Essentials
 
 		int32_t Serial::Read(void* buffer, const uint32_t size)
 		{
+			// TODO - implement timeout
+
 			// Check m_status first
 			if (!IsOpen())
 			{
@@ -549,6 +551,8 @@ namespace Essentials
 
 		int32_t Serial::Write(const void* buffer, const uint32_t size)
 		{
+			// TODO - implement timeout
+
 			// Check m_status first
 			if (!IsOpen())
 			{
@@ -588,9 +592,45 @@ namespace Essentials
 			return rtn;
 		}
 
-		int32_t Serial::WriteBreak(const void* buffer, const uint32_t size)
+		int8_t Serial::WriteBreak(const int32_t durationInMS)
 		{
-			return -1;
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+			uint8_t rtn = -1;
+
+#ifdef WIN32
+			// Sending break in windows: set, wait(Sleep), clear.
+			rtn = SetCommBreak(mFD);
+
+			if (rtn < 0)
+			{
+				mLastError = SerialError::WRITE_BREAK_FAILURE;
+				return -1;
+			}
+
+			Sleep(durationInMS);
+
+			rtn = ClearCommBreak(mFD);
+
+			if (rtn < 0)
+			{
+				mLastError = SerialError::WRITE_BREAK_FAILURE;
+				return -1;
+		}
+#elif defined __linux__
+			rtn = tcsendbreak(mFD, durationInMS);
+#endif
+
+			if (rtn == -1)
+			{
+				mLastError = SerialError::WRITE_BREAK_FAILURE;
+			}
+
+			return rtn;
 		}
 
 		int8_t Serial::Close()

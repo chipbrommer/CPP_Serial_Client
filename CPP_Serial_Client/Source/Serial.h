@@ -109,7 +109,7 @@ namespace Essentials
 			int32_t Write(const void* buffer, const uint32_t size);
 
 
-			int32_t WriteBreak(const void* buffer, const uint32_t size);
+			int8_t WriteBreak(const int32_t durationInMS);
 
 			/// <summary>Closes a serial connection</summary>
 			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
