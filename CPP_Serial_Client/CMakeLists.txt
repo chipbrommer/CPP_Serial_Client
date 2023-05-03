@@ -4,8 +4,8 @@
 
 # Add source to this project's executable.
 add_executable (CPP_Serial_Client 
-"CPP_Serial_Client.cpp" 
-"CPP_Serial_Client.h" 
+"main.cpp" 
+ 
 "Source/Serial.cpp" 
 "Source/Serial.h" 
 "Source/Serial_Info.h")

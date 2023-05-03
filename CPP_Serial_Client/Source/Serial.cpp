@@ -341,7 +341,7 @@ namespace Essentials
 		{
 			// TODO - implement timeout
 
-			// Check m_status first
+			// Check mFD first
 			if (!IsOpen())
 			{
 				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
@@ -382,6 +382,13 @@ namespace Essentials
 
 		int32_t Serial::ReadLine(void* buffer, const uint32_t size, std::string delimiter)
 		{
+			// Verify port is open. 
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
 			// If parameter isnt passed in and delimiter is set, use it instead
 			if (delimiter == "\n" && (mDelimiter != "\n" && !mDelimiter.empty()) )
 			{
