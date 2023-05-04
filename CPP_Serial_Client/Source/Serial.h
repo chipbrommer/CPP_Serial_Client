@@ -87,6 +87,20 @@ namespace Essentials
 			READ_FAILURE,
 			READ_LINE_FAILURE,
 			WIN32_WAIT_READBALE,
+			LINUX_BREAK_ON_FAILURE,
+			LINUX_BREAK_OFF_FAILURE,
+			LINUX_RTS_ON_FAILURE,
+			LINUX_RTS_OFF_FAILURE,
+			LINUX_DTS_ON_FAILURE,
+			LINUX_DTS_OFF_FAILURE,
+			BINARY_SET_FAILURE,
+			WIN_SETBREAK_FAILURE,
+			WIN_CLRBREAK_FAILURE,
+			WIN_SETRTS_FAILURE,
+			WIN_CLRRTS_FAILURE,
+			WIN_SETDTR_FAILURE,
+			WIN_CLRDTR_FAILURE,
+
 		};
 
 		/// <summary>A Map to convert an error value to a readable string.</summary>
@@ -289,8 +303,10 @@ namespace Essentials
 			/// <param name="size"> -[in]- Size of the data to be sent</param>
 			/// <returns>0+ if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
 			int32_t Write(const void* buffer, const uint32_t size);
-
-
+			
+			/// <summary>Writes a break over the serial port</summary>
+			/// <param name="durationInMS"> -[in]- Duration in MS to write the break.</param>
+			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
 			int8_t WriteBreak(const int32_t durationInMS);
 
 			/// <summary>Closes a serial connection</summary>
@@ -338,10 +354,21 @@ namespace Essentials
 			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
 			int8_t SetDelimiter(const std::string delimiter);
 
-			int8_t SetBreak();
-			int8_t SetRTS();
-			int8_t SetDTR();
-			int8_t SetBinary();
+			/// <summary>Set the port to break until called to stop</summary>
+			/// <param name="onoff"> -[in]- Flag to turn break on or off.</param>
+			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
+			int8_t SetBreak(const bool onoff);
+
+
+			int8_t SetRTS(const bool onoff);
+
+
+			int8_t SetDTR(const bool onoff);
+
+			/// <summary>Set the serial port for binary</summary>
+			/// <param name="onoff"> -[in]- Flag to turn bindary on or off.</param>
+			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
+			int8_t SetBinary(bool onoff);
 
 			/// <summary>Get the current port in string format</summary>
 			/// <returns>The set port</returns>
@@ -380,10 +407,13 @@ namespace Essentials
 			int8_t GetDSR();
 			int8_t GetRI();
 			int8_t GetCD();
+
+			/// <summary>Check if the port is in binary mode.</summary>
+			/// <returns>True if in binary mode, false if not.</returns>
 			bool GetBinary();
 
-			/// <summary></summary>
-			/// <returns></returns>
+			/// <summary>Get the number of bytes available on the serial port to be read.</summary>
+			/// <returns>0+ on success indicating number of available bytes, -1 if fails. Call Serial::GetLastError to find out more.</returns>
 			int32_t GetInQueueLength();
 
 			/// <summary>Get the last error in string format</summary>

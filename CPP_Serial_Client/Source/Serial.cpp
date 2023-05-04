@@ -468,10 +468,7 @@ namespace Essentials
 			uint8_t rtn = 0;
 
 #ifdef WIN32
-			if (mFD != INVALID_HANDLE_VALUE)
-			{
-				rtn = FlushFileBuffers(mFD);
-			}
+			rtn = FlushFileBuffers(mFD);
 
 			// FlushFileBuffers returns 0 on fail, adjust to -1;
 			if (rtn == 0)
@@ -479,10 +476,7 @@ namespace Essentials
 				rtn = -1;
 			}
 #elif defined __linux__
-			if (mFD >= 0)
-			{
-				rtn = tcflush(mFD, TCIOFLUSH);
-			}
+			rtn = tcflush(mFD, TCIOFLUSH);
 #endif
 			if (rtn == -1)
 			{
@@ -785,23 +779,185 @@ namespace Essentials
 			return -1;
 		}
 
-		int8_t Serial::SetBreak()
+		int8_t Serial::SetBreak(const bool onoff)
 		{
-			return -1;
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+			uint8_t rtn = -1;
+#ifdef WIN32
+			if (onoff) 
+			{
+				rtn = EscapeCommFunction(mFD, SETBREAK);
+
+				if (rtn == 0)
+				{
+					mLastError = SerialError::WIN_SETBREAK_FAILURE;
+					return -1;
+				}
+			}
+			else 
+			{
+				rtn = EscapeCommFunction(mFD, CLRBREAK);
+
+				if (rtn == 0)
+				{
+					mLastError = SerialError::WIN_CLRBREAK_FAILURE;
+					return -1;
+				}
+			}
+#elif defined __linux__
+			if (onoff) 
+			{
+				rtn = ioctl(mFD, TIOCSBRK);
+
+				if (rtn == -1)
+				{
+					mLastError = SerialError::LINUX_BREAK_ON_FAILURE;
+					return -1;
+				}
+			}
+			else 
+			{
+				rtn = ioctl(mFD, TIOCCBRK);
+
+				if (rtn == -1)
+				{
+					mLastError = SerialError::LINUX_BREAK_OFF_FAILURE;
+					return -1;
+				}
+			}
+#endif
+			return 0;
 		}
 
-		int8_t Serial::SetRTS()
+		int8_t Serial::SetRTS(const bool onoff)
 		{
-			return -1;
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+			uint8_t rtn = -1;
+#ifdef WIN32
+			if (onoff)
+			{
+				rtn = EscapeCommFunction(mFD, SETRTS);
+
+				if (rtn == 0)
+				{
+					mLastError = SerialError::WIN_SETRTS_FAILURE;
+					return -1;
+				}
+			}
+			else
+			{
+				rtn = EscapeCommFunction(mFD, CLRRTS);
+
+				if (rtn == 0)
+				{
+					mLastError = SerialError::WIN_CLRRTS_FAILURE;
+					return -1;
+				}
+			}
+#elif defined __linux__
+			int8_t command = TIOCM_RTS;
+
+			if (onoff)
+			{
+				rtn = ioctl(mFD, TIOCMBIS, &command);
+
+				if (rtn == -1)
+				{
+					mLastError = SerialError::LINUX_RTS_ON_FAILURE;
+					return -1;
+				}
+			}
+			else
+			{
+				rtn = ioctl(mFD, TIOCMBIC, &command);
+
+				if (rtn == -1)
+				{
+					mLastError = SerialError::LINUX_RTS_OFF_FAILURE;
+					return -1;
+				}
+			}
+#endif
+			return 0;
 		}
 
-		int8_t Serial::SetDTR()
+		int8_t Serial::SetDTR(const bool onoff)
 		{
-			return -1;
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+			uint8_t rtn = -1;
+#ifdef WIN32
+			if (onoff)
+			{
+				rtn = EscapeCommFunction(mFD, SETDTR);
+
+				if (rtn == 0)
+				{
+					mLastError = SerialError::WIN_SETDTR_FAILURE;
+					return -1;
+				}
+			}
+			else
+			{
+				rtn = EscapeCommFunction(mFD, CLRDTR);
+
+				if (rtn == 0)
+				{
+					mLastError = SerialError::WIN_CLRDTR_FAILURE;
+					return -1;
+				}
+			}
+#elif defined __linux__
+			int8_t command = TIOCM_DTR;
+
+			if (onoff)
+			{
+				rtn = ioctl(mFD, TIOCMBIS, &command);
+
+				if (rtn == -1)
+				{
+					mLastError = SerialError::LINUX_DTS_ON_FAILURE;
+					return -1;
+				}
+			}
+			else
+			{
+				rtn = ioctl(mFD, TIOCMBIC, &command);
+
+				if (rtn == -1)
+				{
+					mLastError = SerialError::LINUX_DTS_OFF_FAILURE;
+					return -1;
+				}
+			}
+#endif
+			return 0;
 		}
 
-		int8_t Serial::SetBinary()
+		int8_t Serial::SetBinary(bool onoff)
 		{
+			mBinary = onoff;
+
+			if (mBinary == onoff)
+			{
+				return 0;
+			}
+
+			mLastError = SerialError::BINARY_SET_FAILURE;
 			return -1;
 		}
 
