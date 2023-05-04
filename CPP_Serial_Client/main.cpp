@@ -7,7 +7,7 @@
 int main()
 {
 	std::cout << "Hello CMake." << std::endl;
-	//std::cout << Essentials::Communications::SerialVersion;
+	std::cout << Essentials::Communications::SerialVersion;
 
 	Essentials::Communications::Serial serial;
 	serial.Configure("COMM4", Essentials::Communications::BaudRate::BAUDRATE_115200, Essentials::Communications::ByteSize::EIGHT, Essentials::Communications::Parity::NONE);

@@ -29,9 +29,11 @@ namespace Essentials
 		constexpr static uint8_t SERIAL_VERSION_PATCH = 0;
 		constexpr static uint8_t SERIAL_VERSION_BUILD = 0;
 
-		//static std::string SerialVersion = std::format("Serial Client v{}.{}.{} - b{}",
-		//	SERIAL_VERSION_MAJOR, SERIAL_VERSION_MINOR, 
-		//	SERIAL_VERSION_PATCH, SERIAL_VERSION_BUILD);
+		static std::string SerialVersion = "Serial Client v"		+
+			std::to_string((uint8_t)SERIAL_VERSION_MAJOR) + "."		+
+			std::to_string((uint8_t)SERIAL_VERSION_MINOR) + "."		+
+			std::to_string((uint8_t)SERIAL_VERSION_PATCH) + " - b"	+
+			std::to_string((uint8_t)SERIAL_VERSION_BUILD) + ".\n";
 
 		enum class SerialError : uint8_t
 		{
