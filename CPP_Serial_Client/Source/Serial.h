@@ -200,6 +200,7 @@ namespace Essentials
 			std::string("Error Code " + std::to_string((uint8_t)SerialError::WIN_CLRDTR_FAILURE) + ": WIN32 failed to clear DTR")},
 		};
 
+		/// <summary>Enum for typical baudrates</summary>
 		enum class BaudRate : uint32_t
 		{
 			BAUDRATE_50,		// Posix only.
@@ -229,6 +230,7 @@ namespace Essentials
 			BAUDRATE_INVALID,
 		};
 
+		/// <summary>enum for the byte size options for the port.</summary>
 		enum class ByteSize : uint8_t
 		{
 			FIVE,
@@ -238,6 +240,7 @@ namespace Essentials
 			INVALID,
 		};
 
+		/// <summary>enum for the parity options for the port.</summary>
 		enum class Parity : uint8_t
 		{
 			NONE,
@@ -248,6 +251,7 @@ namespace Essentials
 			INVALID,
 		};
 
+		/// <summary>enum for the stop bits options for the port.</summary>
 		enum class StopBits : uint8_t
 		{
 			ONE,
@@ -256,6 +260,7 @@ namespace Essentials
 			INVALID
 		};
 
+		/// <summary>enum for the flow control options for the port.</summary>
 		enum class FlowControl : uint8_t
 		{
 			NONE,
@@ -263,6 +268,7 @@ namespace Essentials
 			HARDWARE,
 		};
 
+		/// <summary>A class for communication over a serial port. </summary>
 		class Serial
 		{
 		public:
