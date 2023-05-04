@@ -930,7 +930,7 @@ namespace Essentials
 
 				if (rtn == -1)
 				{
-					mLastError = SerialError::LINUX_DTS_ON_FAILURE;
+					mLastError = SerialError::LINUX_DTR_ON_FAILURE;
 					return -1;
 				}
 			}
@@ -940,7 +940,7 @@ namespace Essentials
 
 				if (rtn == -1)
 				{
-					mLastError = SerialError::LINUX_DTS_OFF_FAILURE;
+					mLastError = SerialError::LINUX_DTR_OFF_FAILURE;
 					return -1;
 				}
 			}

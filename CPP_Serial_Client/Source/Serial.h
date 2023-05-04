@@ -91,8 +91,8 @@ namespace Essentials
 			LINUX_BREAK_OFF_FAILURE,
 			LINUX_RTS_ON_FAILURE,
 			LINUX_RTS_OFF_FAILURE,
-			LINUX_DTS_ON_FAILURE,
-			LINUX_DTS_OFF_FAILURE,
+			LINUX_DTR_ON_FAILURE,
+			LINUX_DTR_OFF_FAILURE,
 			BINARY_SET_FAILURE,
 			WIN_SETBREAK_FAILURE,
 			WIN_CLRBREAK_FAILURE,
@@ -172,6 +172,32 @@ namespace Essentials
 			std::string("Error Code " + std::to_string((uint8_t)SerialError::READ_LINE_FAILURE) + ": Read line failure.")},
 			{SerialError::WIN32_WAIT_READBALE,
 			std::string("Error Code " + std::to_string((uint8_t)SerialError::WIN32_WAIT_READBALE) + ": WIN32 wait readable")},
+			{SerialError::LINUX_BREAK_ON_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::LINUX_BREAK_ON_FAILURE) + ": Linux failed to turn on break.")},
+			{SerialError::LINUX_BREAK_OFF_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::LINUX_BREAK_OFF_FAILURE) + ": Linux failed to turn off break.")},
+			{SerialError::LINUX_RTS_ON_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::LINUX_RTS_ON_FAILURE) + ": Linux failed to turn on RTS")},
+			{SerialError::LINUX_RTS_OFF_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::LINUX_RTS_OFF_FAILURE) + ": Linux failed to turn off RTS")},
+			{SerialError::LINUX_DTR_ON_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::LINUX_DTR_ON_FAILURE) + ": Linux failed to turn on DTS")},
+			{SerialError::LINUX_DTR_OFF_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::LINUX_DTR_OFF_FAILURE) + ": Linux failed to turn off DTS")},
+			{SerialError::BINARY_SET_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::BINARY_SET_FAILURE) + ": Failed to set binary mode.")},
+			{SerialError::WIN_SETBREAK_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::WIN_SETBREAK_FAILURE) + ": WIN32 failed to set break.")},
+			{SerialError::WIN_CLRBREAK_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::WIN_CLRBREAK_FAILURE) + ": WIN32 failed to clear break.")},
+			{SerialError::WIN_SETRTS_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::WIN_SETRTS_FAILURE) + ": WIN32 failed to set RTS")},
+			{SerialError::WIN_CLRRTS_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::WIN_CLRRTS_FAILURE) + ": WIN32 failed to clear RTS")},
+			{SerialError::WIN_SETDTR_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::WIN_SETDTR_FAILURE) + ": WIN32 failed to set DTR")},
+			{SerialError::WIN_CLRDTR_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::WIN_CLRDTR_FAILURE) + ": WIN32 failed to clear DTR")},
 		};
 
 		enum class BaudRate : uint32_t
@@ -359,10 +385,14 @@ namespace Essentials
 			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
 			int8_t SetBreak(const bool onoff);
 
-
+			/// <summary>Enable or Disable the RTS (request-to-send) signal.</summary>
+			/// <param name="onoff"> -[in]- Flag to turn RTS on or off.</param>
+			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
 			int8_t SetRTS(const bool onoff);
 
-
+			/// <summary>Enable or Disable the DTR (data-terminal-ready) signal.</summary>
+			/// <param name="onoff"> -[in]- Flag to turn DTR on or off.</param>
+			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
 			int8_t SetDTR(const bool onoff);
 
 			/// <summary>Set the serial port for binary</summary>
