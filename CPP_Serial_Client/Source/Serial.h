@@ -100,7 +100,10 @@ namespace Essentials
 			WIN_CLRRTS_FAILURE,
 			WIN_SETDTR_FAILURE,
 			WIN_CLRDTR_FAILURE,
-
+			FAILED_GET_CTS,
+			FAILED_GET_DSR,
+			FAILED_GET_RI,
+			FAILED_GET_CD,
 		};
 
 		/// <summary>A Map to convert an error value to a readable string.</summary>
@@ -197,7 +200,15 @@ namespace Essentials
 			{SerialError::WIN_SETDTR_FAILURE,
 			std::string("Error Code " + std::to_string((uint8_t)SerialError::WIN_SETDTR_FAILURE) + ": WIN32 failed to set DTR")},
 			{SerialError::WIN_CLRDTR_FAILURE,
-			std::string("Error Code " + std::to_string((uint8_t)SerialError::WIN_CLRDTR_FAILURE) + ": WIN32 failed to clear DTR")},
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::FAILED_GET_CTS) + ": WIN32 failed to clear DTR")},
+			{SerialError::FAILED_GET_CTS,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::FAILED_GET_CTS) + ": Failed to get CTS bit")},
+			{SerialError::FAILED_GET_DSR,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::FAILED_GET_DSR) + ": Failed to get DSR bit")},
+			{SerialError::FAILED_GET_RI,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::FAILED_GET_RI) + ": Failed to get RI bit")},
+			{SerialError::FAILED_GET_CD,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::FAILED_GET_CD) + ": Failed to get CD bit")},
 		};
 
 		/// <summary>Enum for typical baudrates</summary>
@@ -300,10 +311,6 @@ namespace Essentials
 			/// <summary>Check if port is open.</summary>
 			/// <returns>True if open, false if closed.</returns>
 			bool IsOpen();
-
-			/// <summary></summary>
-			/// <returns></returns>
-			int8_t WaitReadable();
 
 			/// <summary>Read from serial into the passed in buffer.</summary>
 			/// <param name="buffer"> -[out]- Pointer to a buffer to read into</param>
@@ -438,10 +445,20 @@ namespace Essentials
 			/// <returns>The current delimiter, "\n" = not set</returns>
 			std::string GetDelimiter();
 
-
+			/// <summary>Check if the CTS (clear-to-send) signal is on.</summary>
+			/// <return>1 if on, 0 if off. -1 on failure, Call Serial::GetLastError to find out more</return>
 			int8_t GetCTS();
+
+			/// <summary>Check if the DSR (data-set-ready) signal is on.</summary>
+			/// <return>1 if on, 0 if off. -1 on failure, Call Serial::GetLastError to find out more.</return>
 			int8_t GetDSR();
+
+			/// <summary>Check if the ring indicator signal is on.</summary>
+			/// <return>1 if on, 0 if off. -1 on failure, Call Serial::GetLastError to find out more.</return>
 			int8_t GetRI();
+
+			/// <summary>Check if the RLSD (receive-line-signal-detect) signal is on.</summary>
+			/// <return>1 if on, 0 if off. -1 on failure, Call Serial::GetLastError to find out more.</return>
 			int8_t GetCD();
 
 			/// <summary>Check if the port is in binary mode.</summary>

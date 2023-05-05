@@ -253,24 +253,24 @@ namespace Essentials
 
 				switch (mBaudRate)
 				{
-				case BaudRate::BAUDRATE_50:		baud = B50;
-				case BaudRate::BAUDRATE_75:		baud = B75;
-				case BaudRate::BAUDRATE_110:	baud = B110;
-				case BaudRate::BAUDRATE_134:	baud = B134;
-				case BaudRate::BAUDRATE_150:	baud = B150;
-				case BaudRate::BAUDRATE_200:	baud = B200;
-				case BaudRate::BAUDRATE_300:	baud = B300;
-				case BaudRate::BAUDRATE_600:	baud = B600;
-				case BaudRate::BAUDRATE_1200:	baud = B1200;
-				case BaudRate::BAUDRATE_2400:	baud = B2400;
-				case BaudRate::BAUDRATE_4800:	baud = B4800;
-				case BaudRate::BAUDRATE_9600:	baud = B9600;
-				case BaudRate::BAUDRATE_19200:	baud = B19200;
-				case BaudRate::BAUDRATE_38400:	baud = B38400;
-				case BaudRate::BAUDRATE_57600:	baud = B57600;
-				case BaudRate::BAUDRATE_115200: baud = B115200;
-				case BaudRate::BAUDRATE_460800: baud = B460800;
-				case BaudRate::BAUDRATE_921600: baud = B921600;
+				case BaudRate::BAUDRATE_50:		baud = B50;			break;
+				case BaudRate::BAUDRATE_75:		baud = B75;			break;
+				case BaudRate::BAUDRATE_110:	baud = B110;		break;
+				case BaudRate::BAUDRATE_134:	baud = B134;		break;
+				case BaudRate::BAUDRATE_150:	baud = B150;		break;
+				case BaudRate::BAUDRATE_200:	baud = B200;		break;
+				case BaudRate::BAUDRATE_300:	baud = B300;		break;
+				case BaudRate::BAUDRATE_600:	baud = B600;		break;
+				case BaudRate::BAUDRATE_1200:	baud = B1200;		break;
+				case BaudRate::BAUDRATE_2400:	baud = B2400;		break;
+				case BaudRate::BAUDRATE_4800:	baud = B4800;		break;
+				case BaudRate::BAUDRATE_9600:	baud = B9600;		break;
+				case BaudRate::BAUDRATE_19200:	baud = B19200;		break;
+				case BaudRate::BAUDRATE_38400:	baud = B38400;		break;
+				case BaudRate::BAUDRATE_57600:	baud = B57600;		break;
+				case BaudRate::BAUDRATE_115200: baud = B115200;		break;
+				case BaudRate::BAUDRATE_460800: baud = B460800;		break;
+				case BaudRate::BAUDRATE_921600: baud = B921600;		break;
 				default: baud = B9600;
 					// TODO - add custom bauds for windows only ones. 
 				}
@@ -280,17 +280,39 @@ namespace Essentials
 
 				switch (mByteSize)
 				{
-				case ByteSize::FIVE:	term.c_cflag |= CS5;
-				case ByteSize::SIX:		term.c_cflag |= CS6;
-				case ByteSize::SEVEN:	term.c_cflag |= CS7;
+				case ByteSize::FIVE:	term.c_cflag |= CS5;		break;
+				case ByteSize::SIX:		term.c_cflag |= CS6;		break;
+				case ByteSize::SEVEN:	term.c_cflag |= CS7;		break;
 				case ByteSize::EIGHT: // Intentional fall through
 				default:				term.c_cflag |= CS8;
 				}
 
-				// TODO - parity, stopbits, flow control.
+				switch (mParity)
+				{
+				case Parity::NONE:		term.c_cflag &= ~(PARENB | PARODD);	break;
+				case Parity::ODD:		term.c_cflag |= (PARENB | PARODD);	break;
+				case Parity::EVEN:		term.c_cflag &= ~PARODD; term.c_cflag |= PARENB; break;
+				case Parity::MARK:		// Intnetional fall through		
+				case Parity::SPACE:		// Intnetional fall through	
+				default:				term.c_cflag &= ~PARENB;
+				}
 
-				term.c_cflag &= ~PARENB;				// Clear parity bit, disabling parity
-				term.c_cflag &= ~CSTOPB;				// Use one stop bit
+				switch (mStopBits)
+				{
+				case StopBits::ONE:			term.c_cflag &= ~CSTOPB;	break;
+				case StopBits::TWO:		// Intnetional fall through, 1.5 not supported in linux so we use two.
+				case StopBits::ONE_FIVE:;	term.c_cflag &= CSTOPB;		break;
+				default:					term.c_cflag &= ~CSTOPB;
+				}
+
+				switch (mFlowControl)
+				{
+				case FlowControl::NONE:			term.c_cflag &= ~CRTSCTS;	term.c_iflag &= ~(IXON | IXOFF | IXANY);	break;
+				case FlowControl::SOFTWARE:;	term.c_cflag &= ~CRTSCTS;	term.c_iflag |= (IXON | IXOFF | IXANY);		break;
+				case FlowControl::HARDWARE:;	term.c_cflag |= CRTSCTS;	term.c_iflag &= ~(IXON | IXOFF | IXANY);	break;
+				default:						term.c_cflag &= ~CRTSCTS;
+				}
+
 				term.c_cflag &= ~CRTSCTS;				// Disable RTS/CTS hardware flow control
 				term.c_cflag |= CREAD | CLOCAL;			// Turn on READ & ignore ctrl lines (CLOCAL = 1)
 				term.c_lflag &= ~ICANON;				// Disable canonical
@@ -298,7 +320,6 @@ namespace Essentials
 				term.c_lflag &= ~ECHOE;					// Disable erasure
 				term.c_lflag &= ~ECHONL;				// Disable new-line echo
 				term.c_lflag &= ~ISIG;					// Disable interpretation of INTR, QUIT and SUSP
-				term.c_iflag &= ~(IXON | IXOFF | IXANY); // Turn off s/w flow ctrl
 				term.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL); // Disable any special handling of received bytes
 				term.c_oflag &= ~OPOST;					// Prevent special interpretation of output bytes
 				term.c_oflag &= ~ONLCR;					// Prevent conversion of newline
@@ -324,17 +345,6 @@ namespace Essentials
 #elif defined __linux__
 			return mFD != -1;
 #endif
-		}
-
-		int8_t Serial::WaitReadable()
-		{
-#ifdef WIN32
-			mLastError = SerialError::WIN32_WAIT_READBALE;
-			return -1;
-#elif defined __linux__
-			
-#endif
-			return -1;
 		}
 
 		int32_t Serial::Read(void* buffer, const uint32_t size)
@@ -1003,21 +1013,129 @@ namespace Essentials
 
 		int8_t Serial::GetCTS()
 		{
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+			uint8_t rtn = -1;
+#ifdef WIN32
+			DWORD dwModemStatus;
+			
+			rtn = GetCommModemStatus(mFD, &dwModemStatus);
+
+			if (rtn == 0)
+			{
+				return (MS_CTS_ON & dwModemStatus) != 0;
+			}
+#elif defined __linux__
+			int status;
+
+			rtn = ioctl(mFD, TIOCMGET, &status);
+
+			if (rtn >= 0)
+			{
+				return 0 != (status & TIOCM_CTS);
+			}
+#endif
+			mLastError = SerialError::FAILED_GET_CTS;
 			return -1;
 		}
 
 		int8_t Serial::GetDSR()
 		{
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+			uint8_t rtn = -1;
+#ifdef WIN32
+			DWORD dwModemStatus;
+
+			rtn = GetCommModemStatus(mFD, &dwModemStatus);
+
+			if (rtn == 0)
+			{
+				return (MS_DSR_ON & dwModemStatus) != 0;
+			}
+#elif defined __linux__
+			int status;
+
+			rtn = ioctl(mFD, TIOCMGET, &status);
+
+			if (rtn >= 0)
+			{
+				return 0 != (status & TIOCM_DSR);
+			}
+#endif
+			mLastError = SerialError::FAILED_GET_DSR;
 			return -1;
 		}
 
 		int8_t Serial::GetRI()
 		{
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+			uint8_t rtn = -1;
+#ifdef WIN32
+			DWORD dwModemStatus;
+
+			rtn = GetCommModemStatus(mFD, &dwModemStatus);
+
+			if (rtn == 0)
+			{
+				return (MS_RING_ON & dwModemStatus) != 0;
+			}
+#elif defined __linux__
+			int status;
+
+			rtn = ioctl(mFD, TIOCMGET, &status);
+
+			if (rtn >= 0)
+			{
+				return 0 != (status & TIOCM_RI);
+			}
+#endif
+			mLastError = SerialError::FAILED_GET_RI;
 			return -1;
 		}
 
 		int8_t Serial::GetCD()
 		{
+			if (!IsOpen())
+			{
+				mLastError = SerialError::SERIAL_PORT_NOT_OPEN;
+				return -1;
+			}
+
+			uint8_t rtn = -1;
+#ifdef WIN32
+			DWORD dwModemStatus;
+
+			rtn = GetCommModemStatus(mFD, &dwModemStatus);
+
+			if (rtn == 0)
+			{
+				return (MS_RLSD_ON & dwModemStatus) != 0;
+			}
+#elif defined __linux__
+			int status;
+
+			rtn = ioctl(mFD, TIOCMGET, &status);
+
+			if (rtn >= 0)
+			{
+				return 0 != (status & TIOCM_CD);
+			}
+#endif
+			mLastError = SerialError::FAILED_GET_CD;
 			return -1;
 		}
 
