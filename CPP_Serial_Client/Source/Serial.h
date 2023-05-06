@@ -74,7 +74,7 @@ namespace Essentials
 			FLUSH_INPUT_ERROR,
 			FLUSH_OUTPUT_ERROR,
 			FLUSH_IO_ERROR,
-			HANDLE_SETUP_FAILURE,
+			SERIAL_WIN_OPEN_FAILURE,
 			SET_COMMSTATE_FAILURE,
 			SET_COMMTIMEOUT_FAILURE,
 			QUEUE_LENGTH_READ_FAILURE,
@@ -151,8 +151,8 @@ namespace Essentials
 			std::string("Error Code " + std::to_string((uint8_t)SerialError::FLUSH_OUTPUT_ERROR) + ": Flush output error.")},
 			{SerialError::FLUSH_IO_ERROR,
 			std::string("Error Code " + std::to_string((uint8_t)SerialError::FLUSH_IO_ERROR) + ": Flush input/output error.")},
-			{SerialError::HANDLE_SETUP_FAILURE,
-			std::string("Error Code " + std::to_string((uint8_t)SerialError::HANDLE_SETUP_FAILURE) + ": Handle setup failure")},
+			{SerialError::SERIAL_WIN_OPEN_FAILURE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::SERIAL_WIN_OPEN_FAILURE) + ": Windows serail open failure.")},
 			{SerialError::SET_COMMSTATE_FAILURE,
 			std::string("Error Code " + std::to_string((uint8_t)SerialError::SET_COMMSTATE_FAILURE) + ": Set COMMSTATE failure.")},
 			{SerialError::SET_COMMTIMEOUT_FAILURE,
@@ -572,10 +572,6 @@ namespace Essentials
 
 		protected:
 		private:
-
-			/// <summary>Sets a custom baud rate not automatically supported by specific OS.</summary>
-			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
-			int8_t SetCustomBaudrate();
 
 			/// <summary>Check if the Baudrate, Parity, ByteSize, and StopBits are valid.</summary>
 			/// <returns>True if valid, false if not.</returns>

@@ -120,7 +120,7 @@ namespace Essentials
 			// Connection check : throw error if invalid handle value
 			if (mFD == INVALID_HANDLE_VALUE)
 			{
-				mLastError = SerialError::HANDLE_SETUP_FAILURE;
+				mLastError = SerialError::SERIAL_WIN_OPEN_FAILURE;
 				return -1;
 			}
 #elif defined __linux__
@@ -176,28 +176,28 @@ namespace Essentials
 
 			switch (mBaudRate)
 			{
-			case BaudRate::BAUDRATE_50:		serialSettings.BaudRate = 50;
-			case BaudRate::BAUDRATE_75:		serialSettings.BaudRate = 75;
-			case BaudRate::BAUDRATE_110:	serialSettings.BaudRate = CBR_110;
-			case BaudRate::BAUDRATE_134:	serialSettings.BaudRate = 134;
-			case BaudRate::BAUDRATE_150:	serialSettings.BaudRate = 150;
-			case BaudRate::BAUDRATE_200:	serialSettings.BaudRate = 200;
-			case BaudRate::BAUDRATE_300:	serialSettings.BaudRate = CBR_300;
-			case BaudRate::BAUDRATE_600:	serialSettings.BaudRate = CBR_600;
-			case BaudRate::BAUDRATE_1200:	serialSettings.BaudRate = CBR_1200;
-			case BaudRate::BAUDRATE_2400:	serialSettings.BaudRate = CBR_2400;
-			case BaudRate::BAUDRATE_4800:	serialSettings.BaudRate = CBR_4800;
-			case BaudRate::BAUDRATE_9600:	serialSettings.BaudRate = CBR_9600;
-			case BaudRate::BAUDRATE_14400:	serialSettings.BaudRate = CBR_14400;
-			case BaudRate::BAUDRATE_19200:	serialSettings.BaudRate = CBR_19200;
-			case BaudRate::BAUDRATE_38400:	serialSettings.BaudRate = CBR_38400;
-			case BaudRate::BAUDRATE_57600:	serialSettings.BaudRate = CBR_57600;
-			case BaudRate::BAUDRATE_115200: serialSettings.BaudRate = CBR_115200;
-			case BaudRate::BAUDRATE_128000: serialSettings.BaudRate = CBR_128000;
-			case BaudRate::BAUDRATE_256000: serialSettings.BaudRate = CBR_256000;
-			case BaudRate::BAUDRATE_460800: serialSettings.BaudRate = 460800;
-			case BaudRate::BAUDRATE_921600: serialSettings.BaudRate = 921600;
-			case BaudRate::BAUDRATE_CUSTOM: serialSettings.BaudRate = mCustomBaudRate;
+			case BaudRate::BAUDRATE_50:		serialSettings.BaudRate = 50;					break;		
+			case BaudRate::BAUDRATE_75:		serialSettings.BaudRate = 75;					break;
+			case BaudRate::BAUDRATE_110:	serialSettings.BaudRate = CBR_110;				break;
+			case BaudRate::BAUDRATE_134:	serialSettings.BaudRate = 134;					break;
+			case BaudRate::BAUDRATE_150:	serialSettings.BaudRate = 150;					break;
+			case BaudRate::BAUDRATE_200:	serialSettings.BaudRate = 200;					break;
+			case BaudRate::BAUDRATE_300:	serialSettings.BaudRate = CBR_300;				break;
+			case BaudRate::BAUDRATE_600:	serialSettings.BaudRate = CBR_600;				break;
+			case BaudRate::BAUDRATE_1200:	serialSettings.BaudRate = CBR_1200;				break;
+			case BaudRate::BAUDRATE_2400:	serialSettings.BaudRate = CBR_2400;				break;
+			case BaudRate::BAUDRATE_4800:	serialSettings.BaudRate = CBR_4800;				break;
+			case BaudRate::BAUDRATE_9600:	serialSettings.BaudRate = CBR_9600;				break;
+			case BaudRate::BAUDRATE_14400:	serialSettings.BaudRate = CBR_14400;			break;
+			case BaudRate::BAUDRATE_19200:	serialSettings.BaudRate = CBR_19200;			break;
+			case BaudRate::BAUDRATE_38400:	serialSettings.BaudRate = CBR_38400;			break;
+			case BaudRate::BAUDRATE_57600:	serialSettings.BaudRate = CBR_57600;			break;
+			case BaudRate::BAUDRATE_115200: serialSettings.BaudRate = CBR_115200;			break;
+			case BaudRate::BAUDRATE_128000: serialSettings.BaudRate = CBR_128000;			break;
+			case BaudRate::BAUDRATE_256000: serialSettings.BaudRate = CBR_256000;			break;
+			case BaudRate::BAUDRATE_460800: serialSettings.BaudRate = 460800;				break;
+			case BaudRate::BAUDRATE_921600: serialSettings.BaudRate = 921600;				break;
+			case BaudRate::BAUDRATE_CUSTOM: serialSettings.BaudRate = mCustomBaudRate;		break;
 			default:						serialSettings.BaudRate = CBR_9600;
 			}
 
@@ -282,6 +282,8 @@ namespace Essentials
 				return -1;
 			}
 
+			bool customBaud = false;
+
 			// Get the current serial attriutes, if tcgetattr returns -1, print error and return
 			termios term;
 			if (tcgetattr(mFD, &term) < 0)
@@ -296,30 +298,28 @@ namespace Essentials
 
 				switch (mBaudRate)
 				{
-				case BaudRate::BAUDRATE_50:		baud = B50;			break;
-				case BaudRate::BAUDRATE_75:		baud = B75;			break;
-				case BaudRate::BAUDRATE_110:	baud = B110;		break;
-				case BaudRate::BAUDRATE_134:	baud = B134;		break;
-				case BaudRate::BAUDRATE_150:	baud = B150;		break;
-				case BaudRate::BAUDRATE_200:	baud = B200;		break;
-				case BaudRate::BAUDRATE_300:	baud = B300;		break;
-				case BaudRate::BAUDRATE_600:	baud = B600;		break;
-				case BaudRate::BAUDRATE_1200:	baud = B1200;		break;
-				case BaudRate::BAUDRATE_2400:	baud = B2400;		break;
-				case BaudRate::BAUDRATE_4800:	baud = B4800;		break;
-				case BaudRate::BAUDRATE_9600:	baud = B9600;		break;
-				case BaudRate::BAUDRATE_19200:	baud = B19200;		break;
-				case BaudRate::BAUDRATE_38400:	baud = B38400;		break;
-				case BaudRate::BAUDRATE_57600:	baud = B57600;		break;
-				case BaudRate::BAUDRATE_115200: baud = B115200;		break;
-				case BaudRate::BAUDRATE_460800: baud = B460800;		break;
-				case BaudRate::BAUDRATE_921600: baud = B921600;		break;
+				case BaudRate::BAUDRATE_50:		baud = B50;									break;
+				case BaudRate::BAUDRATE_75:		baud = B75;									break;
+				case BaudRate::BAUDRATE_110:	baud = B110;								break;
+				case BaudRate::BAUDRATE_134:	baud = B134;								break;
+				case BaudRate::BAUDRATE_150:	baud = B150;								break;
+				case BaudRate::BAUDRATE_200:	baud = B200;								break;
+				case BaudRate::BAUDRATE_300:	baud = B300;								break;
+				case BaudRate::BAUDRATE_600:	baud = B600;								break;
+				case BaudRate::BAUDRATE_1200:	baud = B1200;								break;
+				case BaudRate::BAUDRATE_2400:	baud = B2400;								break;
+				case BaudRate::BAUDRATE_4800:	baud = B4800;								break;
+				case BaudRate::BAUDRATE_9600:	baud = B9600;								break;
+				case BaudRate::BAUDRATE_19200:	baud = B19200;								break;
+				case BaudRate::BAUDRATE_38400:	baud = B38400;								break;
+				case BaudRate::BAUDRATE_57600:	baud = B57600;								break;
+				case BaudRate::BAUDRATE_115200: baud = B115200;								break;
+				case BaudRate::BAUDRATE_460800: baud = B460800;								break;
+				case BaudRate::BAUDRATE_921600: baud = B921600;								break;
+				case BaudRate::BAUDRATE_CUSTOM: baud = mCustomBaudRate;	customBaud = true;	break;
 				default: baud = B9600;
 					// TODO - add custom bauds for windows only ones. 
 				}
-
-				cfsetospeed(&term, baud);		// set the baudrate from "mBaudRate" parameter
-				cfsetispeed(&term, baud);
 
 				switch (mByteSize)
 				{
@@ -366,8 +366,33 @@ namespace Essentials
 				term.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL); // Disable any special handling of received bytes
 				term.c_oflag &= ~OPOST;					// Prevent special interpretation of output bytes
 				term.c_oflag &= ~ONLCR;					// Prevent conversion of newline
-				term.c_cc[VTIME] = mBlocking ? 1 : 0;	// 0 = Return as soon as any data is received.
-				term.c_cc[VMIN] = mBlocking ? cc_t(1) : 0;
+
+
+				// Handle custom baudrate
+				if (customBaud)
+				{
+					tio.c_cflag &= ~CBAUD;
+					tio.c_cflag |= BOTHER;
+					tio.c_ispeed = customRate;
+					tio.c_ospeed = customRate;
+				}
+				else
+				{
+					cfsetospeed(&term, baud);		// set the baudrate from "mBaudRate" parameter
+					cfsetispeed(&term, baud);
+				}
+
+				// Handle Timeout and Blocking settings. 
+				if (mTimeout > 0 && mBlocking == false)
+				{
+					term.c_cc[VTIME] = mTimeout;		// Timeout
+					term.c_cc[VMIN] = 0					// Zero character requirement. 
+				}
+				else
+				{
+					term.c_cc[VTIME] = mBlocking ? 1 : 0;	// 0 = Return as soon as any data is received.
+					term.c_cc[VMIN] = mBlocking ? cc_t(1) : 0;
+				}
 
 				// Save settings, check for error
 				if (tcsetattr(mFD, TCSANOW, &term) < 0)
@@ -392,8 +417,6 @@ namespace Essentials
 
 		int32_t Serial::Read(void* buffer, const uint32_t size)
 		{
-			// TODO - implement timeout
-
 			// Check mFD first
 			if (!IsOpen())
 			{
@@ -611,8 +634,6 @@ namespace Essentials
 
 		int32_t Serial::Write(const void* buffer, const uint32_t size)
 		{
-			// TODO - implement timeout
-
 			// Check m_status first
 			if (!IsOpen())
 			{
@@ -1240,11 +1261,6 @@ namespace Essentials
 		std::string Serial::GetLastError()
 		{
 			return SerialErrorMap[mLastError];
-		}
-
-		int8_t Serial::SetCustomBaudrate()
-		{
-			return -1;
 		}
 
 		bool Serial::ValidityCheck()
