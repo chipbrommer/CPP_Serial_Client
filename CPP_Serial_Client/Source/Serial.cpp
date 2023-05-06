@@ -101,40 +101,9 @@ namespace Essentials
 
 		int8_t Serial::Open()
 		{
-			// Run through a series of checks to verify everything is ready.
-			if(IsOpen())
+			// Validity Check for main elements 
+			if (!ValidityCheck())
 			{
-				mLastError = SerialError::SERIAL_PORT_ALREADY_OPEN;
-				return -1;
-			}
-
-			if (mPort == "")
-			{
-				mLastError = SerialError::PORT_NOT_SET;
-				return -1;
-			}
-
-			if (mBaudRate == BaudRate::BAUDRATE_INVALID)
-			{
-				mLastError = SerialError::BAUDRATE_NOT_SET;
-				return -1;
-			}
-
-			if (mByteSize == ByteSize::INVALID)
-			{
-				mLastError = SerialError::BYTESIZE_NOT_SET;
-				return -1;
-			}
-
-			if (mParity == Parity::INVALID)
-			{
-				mLastError = SerialError::PARITY_NOT_SET;
-				return -1;
-			}
-
-			if (mStopBits == StopBits::INVALID)
-			{
-				mLastError = SerialError::STOPBITS_NOT_SET;
 				return -1;
 			}
 
@@ -152,6 +121,49 @@ namespace Essentials
 			if (mFD == INVALID_HANDLE_VALUE)
 			{
 				mLastError = SerialError::HANDLE_SETUP_FAILURE;
+				return -1;
+			}
+#elif defined __linux__
+			// Open connection to serial port
+			// Call open + send port name and Read Write access + Program doesnt control access + Send without restrictions
+			if (mBlocking)
+			{
+				mFD = open(mPort.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_APPEND);
+			}
+			else
+			{
+				mFD = open(mPort.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_APPEND | O_NONBLOCK);
+			}
+
+			// Handle check : -1 = open failed
+			if (mFD < 0)
+			{
+				mLastError = SerialError::SERIAL_LINUX_OPEN_FAILURE;
+				return -1;
+			}
+#endif
+			// Configure the port to the set parameters. 
+			if (ReconfigurePort() < 0)
+			{
+				return -1;
+			}
+
+			return 0;
+		}
+
+		int8_t Serial::ReconfigurePort()
+		{
+			// Validity Check for main elements 
+			if (!ValidityCheck())
+			{
+				return -1;
+			}
+
+#ifdef WIN32
+			// Connection check : throw error if invalid handle value
+			if (mFD == INVALID_HANDLE_VALUE)
+			{
+				mLastError = SerialError::BAD_HANDLE;
 				return -1;
 			}
 
@@ -194,14 +206,56 @@ namespace Essentials
 			case ByteSize::FIVE:	serialSettings.ByteSize = 5;
 			case ByteSize::SIX:		serialSettings.ByteSize = 6;
 			case ByteSize::SEVEN:	serialSettings.ByteSize = 7;
-			case ByteSize::EIGHT: // Intentional fall throug
-			default:				serialSettings.ByteSize = 8;
+			default:	// Intentional fall through.
+			case ByteSize::EIGHT:	serialSettings.ByteSize = 8;
 			}
 
-			// TODO - parity, stopbits, flow control.
+			switch (mParity)
+			{
+			case Parity::ODD:		serialSettings.Parity = ODDPARITY;
+			case Parity::EVEN:		serialSettings.Parity = EVENPARITY;
+			case Parity::MARK:		serialSettings.Parity = MARKPARITY;
+			case Parity::SPACE:		serialSettings.Parity = SPACEPARITY;
+			default:	// Intentional fall through.
+			case Parity::NONE:		serialSettings.Parity = NOPARITY;
+			}
 
-			serialSettings.StopBits = ONESTOPBIT;
-			serialSettings.Parity = NOPARITY;
+			switch (mStopBits)
+			{
+			case StopBits::TWO:			serialSettings.StopBits = TWOSTOPBITS;
+			case StopBits::ONE_FIVE:;	serialSettings.StopBits = ONE5STOPBITS;
+			default:	// Intentional fall through.
+			case StopBits::ONE:			serialSettings.StopBits = ONESTOPBIT;
+			}
+
+			switch (mFlowControl)
+			{
+			case FlowControl::SOFTWARE:
+			{
+				serialSettings.fOutxCtsFlow = false;
+				serialSettings.fRtsControl = RTS_CONTROL_DISABLE;
+				serialSettings.fOutX = true;
+				serialSettings.fInX = true;
+			}
+			break;
+			case FlowControl::HARDWARE:
+			{
+				serialSettings.fOutxCtsFlow = true;
+				serialSettings.fRtsControl = RTS_CONTROL_HANDSHAKE;
+				serialSettings.fOutX = false;
+				serialSettings.fInX = false;
+			}
+			break;
+			default:	// Intentional fall through. 
+			case FlowControl::NONE:
+			{
+				serialSettings.fOutxCtsFlow = false;
+				serialSettings.fRtsControl = RTS_CONTROL_DISABLE;
+				serialSettings.fOutX = false;
+				serialSettings.fInX = false;
+			}
+			break;
+			}
 
 			// Save settings, check for error
 			if (SetCommState(mFD, &serialSettings) == 0)
@@ -221,21 +275,10 @@ namespace Essentials
 				return -1;
 			}
 #elif defined __linux__
-			// Open connection to serial port
-			// Call open + send port name and Read Write access + Program doesnt control access + Send without restrictions
-			if (mBlocking)
-			{
-				mFD = open(mPort.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_APPEND);
-			}
-			else
-			{
-				mFD = open(mPort.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_APPEND | O_NONBLOCK);
-			}
-
 			// Handle check : -1 = open failed
 			if (mFD < 0)
 			{
-				mLastError = SerialError::SERIAL_LINUX_OPEN_FAILURE;
+				mLastError = SerialError::LINUX_BAD_HANDLE;
 				return -1;
 			}
 
@@ -246,7 +289,7 @@ namespace Essentials
 				mLastError = SerialError::SERIAL_LINUX_GETATTRIBUTES_FAILURE;
 				return -1;
 			}
-			else 
+			else
 			{
 				// Setup settings for Serial Port communication
 				speed_t baud = 0;
@@ -333,9 +376,9 @@ namespace Essentials
 					return -1;
 				}
 			}
-
 #endif
-			return -1;
+			// Return success. 
+			return 0;
 		}
 
 		bool Serial::IsOpen()
@@ -981,14 +1024,29 @@ namespace Essentials
 			return mBaudRate;
 		}
 
+		std::string Serial::GetBaudrateAsString()
+		{
+			return BaudRateMap[mBaudRate];
+		}
+
 		Parity Serial::GetParity()
 		{
 			return mParity;
 		}
 
+		std::string Serial::GetParityAsString()
+		{
+			return ParityMap[mParity];
+		}
+
 		ByteSize Serial::GetByteSize()
 		{
 			return mByteSize;
+		}
+
+		std::string Serial::GetByteSizeAsString()
+		{
+			return ByteSizeMap[mByteSize];
 		}
 
 		uint32_t Serial::GetTimeout()
@@ -1001,9 +1059,19 @@ namespace Essentials
 			return mStopBits;
 		}
 
+		std::string Serial::GetStopBitsAsString()
+		{
+			return StopBitsMap[mStopBits];
+		}
+
 		FlowControl Serial::GetFlowControl()
 		{
 			return mFlowControl;
+		}
+
+		std::string Serial::GetFlowControlAsString()
+		{
+			return FlowControlMap[mFlowControl];
 		}
 
 		std::string Serial::GetDelimiter()
@@ -1177,6 +1245,35 @@ namespace Essentials
 		int8_t Serial::SetCustomBaudrate()
 		{
 			return -1;
+		}
+
+		bool Serial::ValidityCheck()
+		{
+			if (mBaudRate == BaudRate::BAUDRATE_INVALID)
+			{
+				mLastError = SerialError::BAUDRATE_NOT_SET;
+				return false;
+			}
+
+			if (mByteSize == ByteSize::INVALID)
+			{
+				mLastError = SerialError::BYTESIZE_NOT_SET;
+				return false;
+			}
+
+			if (mParity == Parity::INVALID)
+			{
+				mLastError = SerialError::PARITY_NOT_SET;
+				return false;
+			}
+
+			if (mStopBits == StopBits::INVALID)
+			{
+				mLastError = SerialError::STOPBITS_NOT_SET;
+				return false;
+			}
+
+			return true;
 		}
 
 	} // End Namespace Communications

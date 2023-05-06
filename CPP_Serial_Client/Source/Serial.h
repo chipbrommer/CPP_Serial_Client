@@ -104,6 +104,8 @@ namespace Essentials
 			FAILED_GET_DSR,
 			FAILED_GET_RI,
 			FAILED_GET_CD,
+			BAD_HANDLE,
+			LINUX_BAD_HANDLE,
 		};
 
 		/// <summary>A Map to convert an error value to a readable string.</summary>
@@ -209,6 +211,10 @@ namespace Essentials
 			std::string("Error Code " + std::to_string((uint8_t)SerialError::FAILED_GET_RI) + ": Failed to get RI bit")},
 			{SerialError::FAILED_GET_CD,
 			std::string("Error Code " + std::to_string((uint8_t)SerialError::FAILED_GET_CD) + ": Failed to get CD bit")},
+			{ SerialError::BAD_HANDLE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::BAD_HANDLE) + ": Bad file handle.") },
+			{ SerialError::LINUX_BAD_HANDLE,
+			std::string("Error Code " + std::to_string((uint8_t)SerialError::LINUX_BAD_HANDLE) + ": Bad file handle.") },
 		};
 
 		/// <summary>Enum for typical baudrates</summary>
@@ -241,6 +247,36 @@ namespace Essentials
 			BAUDRATE_INVALID,
 		};
 
+		/// <summary>Baud Rate enum to string map</summary>
+		static std::map<BaudRate, std::string> BaudRateMap
+		{
+			{BaudRate::BAUDRATE_50,			std::string("Baud Rate 50.")},
+			{BaudRate::BAUDRATE_75,			std::string("Baud Rate 75.")},
+			{BaudRate::BAUDRATE_110,		std::string("Baud Rate 110")},
+			{BaudRate::BAUDRATE_134,		std::string("Baud Rate 134")},
+			{BaudRate::BAUDRATE_150,		std::string("Baud Rate 150")},
+			{BaudRate::BAUDRATE_200,		std::string("Baud Rate 200.")},
+			{BaudRate::BAUDRATE_300,		std::string("Baud Rate 300.")},
+			{BaudRate::BAUDRATE_600,		std::string("Baud Rate 600.")},
+			{BaudRate::BAUDRATE_1200,		std::string("Baud Rate 1200")},
+			{BaudRate::BAUDRATE_1800,		std::string("Baud Rate 1800")},
+			{BaudRate::BAUDRATE_2400,		std::string("Baud Rate 2400")},
+			{BaudRate::BAUDRATE_4800,		std::string("Baud Rate 4800.")},
+			{BaudRate::BAUDRATE_9600,		std::string("Baud Rate 9600.")},
+			{BaudRate::BAUDRATE_14400,		std::string("Baud Rate 14400.")},
+			{BaudRate::BAUDRATE_19200,		std::string("Baud Rate 19200")},
+			{BaudRate::BAUDRATE_38400,		std::string("Baud Rate 38400")},
+			{BaudRate::BAUDRATE_57600,		std::string("Baud Rate 57600")},
+			{BaudRate::BAUDRATE_76800,		std::string("Baud Rate 76800.")},
+			{BaudRate::BAUDRATE_115200,		std::string("Baud Rate 115200.")},
+			{BaudRate::BAUDRATE_128000,		std::string("Baud Rate 128000.")},
+			{BaudRate::BAUDRATE_256000,		std::string("Baud Rate 256000")},
+			{BaudRate::BAUDRATE_460800,		std::string("Baud Rate 460800")},
+			{BaudRate::BAUDRATE_921600,		std::string("Baud Rate 921600")},
+			{BaudRate::BAUDRATE_CUSTOM,		std::string("Baud Rate custom")},
+			{BaudRate::BAUDRATE_INVALID,	std::string("Baud Rate Invalid.")},
+		};
+
 		/// <summary>enum for the byte size options for the port.</summary>
 		enum class ByteSize : uint8_t
 		{
@@ -249,6 +285,16 @@ namespace Essentials
 			SEVEN,
 			EIGHT,
 			INVALID,
+		};
+
+		/// <summary>Byte Size enum to string map</summary>
+		static std::map<ByteSize, std::string> ByteSizeMap
+		{
+			{ByteSize::FIVE,	std::string("Bite Size 5.")},
+			{ByteSize::SIX,		std::string("Bite Size 6.")},
+			{ByteSize::SEVEN,	std::string("Bite Size 7.")},
+			{ByteSize::EIGHT,	std::string("Bite Size 8.")},
+			{ByteSize::INVALID,	std::string("Bite Size invalid.")},
 		};
 
 		/// <summary>enum for the parity options for the port.</summary>
@@ -262,6 +308,17 @@ namespace Essentials
 			INVALID,
 		};
 
+		/// <summary>Parity enum to string map</summary>
+		static std::map<Parity, std::string> ParityMap
+		{
+			{Parity::NONE,		std::string("Parity None.")},
+			{Parity::ODD,		std::string("Parity Odd.")},
+			{Parity::EVEN,		std::string("Parity Even")},
+			{Parity::MARK,		std::string("Parity Mark")},
+			{Parity::SPACE,		std::string("Parity Space")},
+			{Parity::INVALID,	std::string("Parity invalid.")},
+		};
+
 		/// <summary>enum for the stop bits options for the port.</summary>
 		enum class StopBits : uint8_t
 		{
@@ -271,12 +328,28 @@ namespace Essentials
 			INVALID
 		};
 
+		/// <summary>Stop Bits enum to string map</summary>
+		static std::map<StopBits, std::string> StopBitsMap
+		{
+			{StopBits::ONE,			std::string("StopBits One.")},
+			{StopBits::TWO,			std::string("StopBits Two.")},
+			{StopBits::ONE_FIVE,	std::string("StopBits One point five")},
+			{StopBits::INVALID,		std::string("StopBits Invalid")},
+		};
+
 		/// <summary>enum for the flow control options for the port.</summary>
 		enum class FlowControl : uint8_t
 		{
 			NONE,
 			SOFTWARE,
 			HARDWARE,
+		};
+
+		static std::map<FlowControl, std::string> FlowControlMap
+		{
+			{FlowControl::NONE,		std::string("Flow Control None.")},
+			{FlowControl::SOFTWARE,	std::string("Flow Control Software.")},
+			{FlowControl::HARDWARE,	std::string("Flow Control Hardware.")},
 		};
 
 		/// <summary>A class for communication over a serial port. </summary>
@@ -308,6 +381,10 @@ namespace Essentials
 			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
 			int8_t Open();
 
+			/// <summary> Reconfigure a port after it has been opened.</summary>
+			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
+			int8_t ReconfigurePort();
+
 			/// <summary>Check if port is open.</summary>
 			/// <returns>True if open, false if closed.</returns>
 			bool IsOpen();
@@ -315,7 +392,7 @@ namespace Essentials
 			/// <summary>Read from serial into the passed in buffer.</summary>
 			/// <param name="buffer"> -[out]- Pointer to a buffer to read into</param>
 			/// <param name="size"> -[in]- Desired size to be read</param>
-			/// <returns>0+ if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
+			/// <returns> 0+ if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
 			int32_t Read(void* buffer, const uint32_t size);
 
 			/// <summary>Read serial one byte at a time until end line is git or delimiter is caught</summary>
@@ -421,13 +498,25 @@ namespace Essentials
 			/// <returns>The current baud rate</returns>
 			BaudRate GetBaudrate();
 
+			/// <summary>Get the current BaudRate set for the port as a string.</summary>
+			/// <returns>The current baud rate in string format</returns>
+			std::string GetBaudrateAsString();
+
 			/// <summary>Get the current Parity set for the port</summary>
 			/// <returns>The current parity</returns>
 			Parity GetParity();
 
+			/// <summary>Get the current Parity set for the port as a string.</summary>
+			/// <returns>The current parity in string format</returns>
+			std::string GetParityAsString();
+
 			/// <summary>Get the current ByteSize set for the port</summary>
 			/// <returns>The current byte size</returns>
 			ByteSize GetByteSize();
+
+			/// <summary>Get the current Byte Size set for the port as a string.</summary>
+			/// <returns>The current byte size in string format</returns>
+			std::string GetByteSizeAsString();
 
 			/// <summary>Get the current timeout set for the port</summary>
 			/// <returns>The current timeout, 0 = not set</returns>
@@ -437,9 +526,17 @@ namespace Essentials
 			/// <returns>The current StopBits</returns>
 			StopBits GetStopBits();
 
+			/// <summary>Get the current StopBits set for the port as a string.</summary>
+			/// <returns>The current stop bits in string format</returns>
+			std::string GetStopBitsAsString();
+
 			/// <summary>Get the current Flow Controller set for the port</summary>
 			/// <returns>The current Flow Control setting</returns>
 			FlowControl GetFlowControl();
+
+			/// <summary>Get the current Flow Control set for the port as a string.</summary>
+			/// <returns>The current flow control in string format</returns>
+			std::string GetFlowControlAsString();
 
 			/// <summary>Get the current delimiter set for the port</summary>
 			/// <returns>The current delimiter, "\n" = not set</returns>
@@ -479,6 +576,10 @@ namespace Essentials
 			/// <summary>Sets a custom baud rate not automatically supported by specific OS.</summary>
 			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
 			int8_t SetCustomBaudrate();
+
+			/// <summary>Check if the Baudrate, Parity, ByteSize, and StopBits are valid.</summary>
+			/// <returns>True if valid, false if not.</returns>
+			bool ValidityCheck();
 
 			std::string		mTitle;				// Title for the class when using CPP_LOGGER
 			std::string		mPort;				// Port for the serial connection
