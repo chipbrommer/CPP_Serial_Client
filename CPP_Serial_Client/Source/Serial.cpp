@@ -356,7 +356,6 @@ namespace Essentials
 				default:						term.c_cflag &= ~CRTSCTS;
 				}
 
-				term.c_cflag &= ~CRTSCTS;				// Disable RTS/CTS hardware flow control
 				term.c_cflag |= CREAD | CLOCAL;			// Turn on READ & ignore ctrl lines (CLOCAL = 1)
 				term.c_lflag &= ~ICANON;				// Disable canonical
 				term.c_lflag &= ~ECHO;					// Disable echo
@@ -371,10 +370,10 @@ namespace Essentials
 				// Handle custom baudrate
 				if (customBaud)
 				{
-					tio.c_cflag &= ~CBAUD;
-					tio.c_cflag |= BOTHER;
-					tio.c_ispeed = customRate;
-					tio.c_ospeed = customRate;
+					term.c_cflag &= ~CBAUD;
+					term.c_cflag |= BOTHER;
+					term.c_ispeed = baud;
+					term.c_ospeed = baud;
 				}
 				else
 				{
@@ -386,7 +385,7 @@ namespace Essentials
 				if (mTimeout > 0 && mBlocking == false)
 				{
 					term.c_cc[VTIME] = mTimeout;		// Timeout
-					term.c_cc[VMIN] = 0					// Zero character requirement. 
+					term.c_cc[VMIN] = 0;				// Zero character requirement. 
 				}
 				else
 				{
