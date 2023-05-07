@@ -10,18 +10,24 @@ int main()
 	std::cout << Essentials::Communications::SerialVersion;
 
 	Essentials::Communications::Serial serial;
-	serial.Configure("COMM4", 
+	serial.Configure("/dev/ttyS0", 
 		Essentials::Communications::BaudRate::BAUDRATE_115200, 
 		Essentials::Communications::ByteSize::EIGHT, 
 		Essentials::Communications::Parity::NONE);
 	serial.SetDelimiter("&");
+	serial.Open();
+
+	std::string tmp = "Hello World";
+	serial.Write(tmp.c_str(), tmp.length());
+
+	char buffer[250] = { 0 };
+	int i = serial.Read(buffer, sizeof(buffer));
+
+	std::cout << "Read: " << i << "\n";
 
 	std::string c;
 	c = serial.GetLastError();
 	std::cout << c << std::endl;
-
-	int8_t buffer[200] = { 0 };
-	serial.ReadLine(buffer, sizeof(buffer));
 
 	return 0;
 

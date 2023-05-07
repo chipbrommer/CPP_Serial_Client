@@ -371,7 +371,7 @@ namespace Essentials
 				if (customBaud)
 				{
 					term.c_cflag &= ~CBAUD;
-					term.c_cflag |= BOTHER;
+					//term.c_cflag |= BOTHER;
 					term.c_ispeed = baud;
 					term.c_ospeed = baud;
 				}
@@ -441,7 +441,7 @@ namespace Essentials
 				rtn = numRead;
 			}
 #elif defined __linux__
-			rtn = write(mFD, buffer, size);
+			rtn = read(mFD, buffer, size);
 #endif
 
 			// Check if read was successful
