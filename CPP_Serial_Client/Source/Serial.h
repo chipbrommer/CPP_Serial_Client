@@ -488,7 +488,7 @@ namespace Essentials
 			/// <summary>Set the serial port for binary</summary>
 			/// <param name="onoff"> -[in]- Flag to turn bindary on or off.</param>
 			/// <returns>0 if successful, -1 if fails. Call Serial::GetLastError to find out more.</returns>
-			int8_t SetBinary(bool onoff);
+			//int8_t SetBinary(bool onoff);
 
 			/// <summary>Get the current port in string format</summary>
 			/// <returns>The set port</returns>
@@ -560,7 +560,7 @@ namespace Essentials
 
 			/// <summary>Check if the port is in binary mode.</summary>
 			/// <returns>True if in binary mode, false if not.</returns>
-			bool GetBinary();
+			//bool GetBinary();
 
 			/// <summary>Get the number of bytes available on the serial port to be read.</summary>
 			/// <returns>0+ on success indicating number of available bytes, -1 if fails. Call Serial::GetLastError to find out more.</returns>

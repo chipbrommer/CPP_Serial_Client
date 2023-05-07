@@ -1021,18 +1021,18 @@ namespace Essentials
 			return 0;
 		}
 
-		int8_t Serial::SetBinary(bool onoff)
-		{
-			mBinary = onoff;
+		//int8_t Serial::SetBinary(bool onoff)
+		//{
+		//	mBinary = onoff;
 
-			if (mBinary == onoff)
-			{
-				return 0;
-			}
+		//	if (mBinary == onoff)
+		//	{
+		//		return 0;
+		//	}
 
-			mLastError = SerialError::BINARY_SET_FAILURE;
-			return -1;
-		}
+		//	mLastError = SerialError::BINARY_SET_FAILURE;
+		//	return -1;
+		//}
 
 		std::string Serial::GetPort()
 		{
@@ -1227,10 +1227,10 @@ namespace Essentials
 			return -1;
 		}
 
-		bool Serial::GetBinary()
-		{
-			return mBinary;
-		}
+		//bool Serial::GetBinary()
+		//{
+		//	return mBinary;
+		//}
 
 		int32_t Serial::GetInQueueLength()
 		{
