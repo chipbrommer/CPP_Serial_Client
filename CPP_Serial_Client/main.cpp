@@ -1,7 +1,7 @@
 ﻿// CPP_Serial_Client.cpp : Defines the entry point for the application.
 //
 
-#include "Source/Serial.h"
+#include "Source/serial_client.h"
 #include <iostream>
 
 int main()

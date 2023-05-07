@@ -5,8 +5,8 @@
 # Add source to this project's executable.
 add_executable (CPP_Serial_Client 
 "main.cpp" 
-"Source/serial.cpp" 
-"Source/serial.h" 
+"Source/serial_client.cpp" 
+"Source/serial_client.h" 
 )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)

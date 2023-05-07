@@ -15,7 +15,7 @@
 //  Includes:
 //          name                        reason included
 //          --------------------        ---------------------------------------
-#include	"Serial.h"					// Serial Class
+#include	"serial_client.h"			// Serial Class
 //
 ///////////////////////////////////////////////////////////////////////////////
 
