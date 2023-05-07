@@ -599,5 +599,4 @@ namespace Essentials
 		};
 	} // End Namespace Communications
 } // End Namespace Essentials
-
 #endif // CPP_SERIAL

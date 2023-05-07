@@ -1290,6 +1290,5 @@ namespace Essentials
 
 			return true;
 		}
-
 	} // End Namespace Communications
 } // End Namespace Essentials
