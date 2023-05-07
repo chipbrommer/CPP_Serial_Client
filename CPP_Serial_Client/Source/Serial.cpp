@@ -431,7 +431,7 @@ namespace Essentials
 			DWORD numRead = 0;
 			rtn = ReadFile(mFD, &buffer, size, &numRead, NULL);
 
-			// ReadFile returns 0 on fail, adjust to -1;
+			// ReadFile returns 0 on fail, adjust to -1; else set to number successfully written.
 			if (rtn == 0)
 			{
 				rtn = -1;
